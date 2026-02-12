@@ -9,20 +9,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- FETCHING DENGAN HEADER PALSU (ANTI-BLOKIR) ---
+// CONFIG HEADERS
+// Kita pakai header browser agar tidak diblokir, TAPI khusus detail kadang harus polosan.
+const getHeaders = (endpoint) => {
+    if (endpoint === '/detail') return {}; // Detail butuh polosan
+    return {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://dramabox.com/',
+        'Origin': 'https://dramabox.com/'
+    };
+};
+
 const fetchData = async (endpoint, params = {}) => {
     try {
         const response = await axios.get(`${BASE_URL}${endpoint}`, { 
             params,
-            headers: {
-                // Header ini wajib agar video tidak error 403/Forbidden
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Referer': 'https://dramabox.com/',
-                'Origin': 'https://dramabox.com/',
-                'Accept': 'application/json, text/plain, */*',
-                'Accept-Language': 'en-US,en;q=0.9'
-            },
-            timeout: 30000 // Naikkan timeout ke 30 detik buat jaga-jaga
+            headers: getHeaders(endpoint),
+            timeout: 20000 
         });
         return response.data;
     } catch (error) {
@@ -57,7 +60,7 @@ app.get('/api/home', async (req, res) => {
     });
 });
 
-// 2. LIST
+// 2. LIST (PAGINATION)
 app.get('/api/list', async (req, res) => {
     const { type, page = 1 } = req.query;
     let endpoint = '/latest';
@@ -81,19 +84,24 @@ app.get('/api/list', async (req, res) => {
     res.json(result);
 });
 
-// 3. EPISODES (CRITICAL FIX)
+// 3. EPISODES (FIX LIMIT 21)
 app.get('/api/episodes', async (req, res) => {
     const { bookId } = req.query;
-    // Menggunakan fetchData yang sudah ada header-nya
-    const result = await fetchData('/episodes', { bookId });
+    
+    // Tambah params size besar agar memuat semua chapter
+    const result = await fetchData('/episodes', { 
+        bookId, 
+        page: 1, 
+        size: 2000,   // Request 2000 episode sekaligus
+        pageSize: 2000 
+    });
     
     if (Array.isArray(result)) {
         const formatted = result.map(ep => {
             let videoUrl = "";
             if (ep.cdnList && ep.cdnList.length > 0) {
                 const paths = ep.cdnList[0].videoPathList;
-                // Cari kualitas 720p atau default, kalau ga ada ambil index 0
-                const vid = paths.find(p => p.quality === 720) || paths.find(p => p.isDefault === 1) || paths[0];
+                const vid = paths.find(p => p.isDefault === 1) || paths[0];
                 videoUrl = vid ? vid.videoPath : "";
             }
             return {
@@ -120,6 +128,11 @@ app.get('/api/search/popular', async (req, res) => {
 app.get('/api/random', async (req, res) => {
     const result = await fetchData('/random');
     res.json(result || []);
+});
+app.get('/api/detail', async (req, res) => {
+    const { bookId } = req.query;
+    const result = await fetchData('/detail', { bookId });
+    res.json(result || {});
 });
 
 module.exports = app;
