@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALBEDO-TV PLAYER</title>
+    <title>ALBEDO-TV</title>
     <style>
-        :root { --bg: #000; --card: #1a1a1a; --accent: #e50914; --text: #fff; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding-bottom: 50px; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #000; --card: #1a1a1a; --accent: #ff0033; --text: #fff; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding-bottom: 50px; -webkit-tap-highlight-color: transparent; }
         
         /* NAVBAR */
         .navbar { padding: 15px; background: rgba(0,0,0,0.9); position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
         .logo { font-weight: 800; font-size: 1.4rem; color: var(--accent); cursor: pointer; letter-spacing: 1px;}
         .nav-btn { background: #222; color: #fff; border: 1px solid #333; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
 
-        /* GRID CONTENT */
+        /* GRID SYSTEM */
         .container { padding: 10px; max-width: 1200px; margin: 0 auto; }
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; margin-bottom: 15px; border-left: 4px solid var(--accent); padding-left: 10px; }
         .section-title { font-size: 1.1rem; font-weight: 700; }
@@ -30,7 +30,7 @@
         .search-input { width: 100%; box-sizing: border-box; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 8px; outline: none; font-size: 1rem;}
         .tag { background: #222; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; color: #ccc; cursor: pointer; border: 1px solid #333; margin: 3px; display: inline-block;}
 
-        /* --- FULL SCREEN PLAYER STYLES --- */
+        /* --- PLAYER FULLSCREEN KEREN --- */
         .fullscreen-player {
             display: none;
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -38,58 +38,59 @@
             flex-direction: column;
         }
 
-        /* Header Player */
-        .player-top {
-            position: absolute; top: 0; left: 0; width: 100%;
-            padding: 15px; box-sizing: border-box;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
-            z-index: 10; display: flex; justify-content: space-between; align-items: center;
-        }
-        .player-title { font-weight: bold; font-size: 1rem; text-shadow: 1px 1px 2px black; max-width: 80%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        .close-btn { background: none; border: none; color: white; font-size: 2rem; cursor: pointer; line-height: 1; }
-
         /* Video Area */
         .video-wrapper {
             flex: 1; display: flex; align-items: center; justify-content: center;
-            background: #000; width: 100%;
+            background: #000; width: 100%; position: relative;
         }
-        video { width: 100%; max-height: 100vh; object-fit: contain; }
+        video { width: 100%; height: 100%; object-fit: contain; }
+        
+        /* Tombol Close Mengambang */
+        .floating-close {
+            position: absolute; top: 20px; right: 20px;
+            background: rgba(0,0,0,0.6); color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 40px; height: 40px; border-radius: 50%;
+            font-size: 1.5rem; cursor: pointer; z-index: 20;
+            display: flex; justify-content: center; align-items: center;
+        }
 
-        /* Controls Area (Bottom) */
+        /* Controls Area (Bawah) */
         .player-controls {
             background: #111; border-top: 1px solid #222;
             padding: 15px; padding-bottom: 30px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
         }
         
-        /* Info Episode */
-        .ep-info { text-align: center; color: #aaa; font-size: 0.9rem; margin-bottom: 15px; }
-        .ep-highlight { color: var(--accent); font-weight: bold; }
+        .play-info { text-align: center; margin-bottom: 15px; }
+        .play-title { font-weight: bold; font-size: 1rem; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .play-ep { color: var(--accent); font-size: 0.9rem; }
 
-        /* Buttons Next/Prev */
-        .ctrl-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;}
+        /* Tombol Next/Prev Besar */
+        .ctrl-row { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px;}
         .ctrl-btn {
-            background: #333; color: white; border: none;
-            padding: 12px 25px; border-radius: 30px;
+            background: #222; color: white; border: 1px solid #333;
+            padding: 12px 0; border-radius: 8px;
             font-size: 0.9rem; font-weight: bold; cursor: pointer;
-            display: flex; align-items: center; gap: 5px;
-            width: 45%; justify-content: center;
+            width: 120px; text-align: center;
+            transition: 0.2s;
         }
-        .ctrl-btn:active { background: #555; }
+        .ctrl-btn:active { background: #444; transform: scale(0.95); }
         .ctrl-btn:disabled { opacity: 0.3; cursor: default; }
 
-        /* Episode List (Scrollable) */
-        .ep-list-container {
-            overflow-x: auto; white-space: nowrap; padding-bottom: 10px;
-            -webkit-overflow-scrolling: touch;
+        /* Scroll Episode */
+        .ep-scroll-view {
+            overflow-x: auto; white-space: nowrap; padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
         }
         .ep-chip {
             display: inline-block;
             background: #222; border: 1px solid #333; color: #888;
-            padding: 10px 0; width: 60px; text-align: center;
-            border-radius: 8px; margin-right: 8px; cursor: pointer;
+            padding: 12px 0; width: 60px; text-align: center;
+            border-radius: 6px; margin-right: 8px; cursor: pointer;
             font-size: 0.9rem; font-weight: 500;
         }
-        .ep-chip.active { background: var(--accent); color: white; border-color: var(--accent); transform: scale(1.05); }
+        .ep-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
 
         .loading { text-align: center; padding: 50px; color: #666; }
         .load-more-btn { display: block; margin: 30px auto; padding: 12px 40px; background: #222; color: #fff; border: 1px solid #333; border-radius: 30px; cursor: pointer; }
@@ -114,28 +115,24 @@
     <button id="loadMoreBtn" class="load-more-btn" onclick="loadNextPage()" style="display:none;">Muat Lebih Banyak</button>
 
     <div id="fullPlayer" class="fullscreen-player">
-        <div class="player-top">
-            <div class="player-title" id="p-title">Judul Drama</div>
-            <button class="close-btn" onclick="closePlayer()">×</button>
-        </div>
+        <button class="floating-close" onclick="closePlayer()">×</button>
 
         <div class="video-wrapper">
             <video id="videoPlayer" controls autoplay playsinline></video>
         </div>
 
         <div class="player-controls">
-            <div class="ep-info">
-                Episode <span id="p-current" class="ep-highlight">-</span> 
-                dari <span id="p-total">-</span>
+            <div class="play-info">
+                <div class="play-title" id="p-title">Judul Film</div>
+                <div class="play-ep">Episode <span id="p-current">-</span> / <span id="p-total">-</span></div>
             </div>
 
             <div class="ctrl-row">
-                <button class="ctrl-btn" id="btnPrev" onclick="changeEpisode(-1)">⏮ Prev</button>
-                <button class="ctrl-btn" id="btnNext" onclick="changeEpisode(1)">Next ⏭</button>
+                <button class="ctrl-btn" id="btnPrev" onclick="changeEpisode(-1)">⏮ PREV</button>
+                <button class="ctrl-btn" id="btnNext" onclick="changeEpisode(1)">NEXT ⏭</button>
             </div>
 
-            <div style="font-size:0.8rem; color:#666; margin-bottom:8px;">DAFTAR EPISODE:</div>
-            <div class="ep-list-container" id="epListScroll">
+            <div class="ep-scroll-view" id="epListScroll">
                 </div>
         </div>
     </div>
@@ -148,12 +145,11 @@
         // PLAYER STATE
         let currentEpisodes = [];
         let currentEpIndex = 0;
-        let currentBookTitle = "";
 
         // INIT
         loadHome();
 
-        // --- FETCHING DATA ---
+        // --- FETCHING ---
         async function loadHome() {
             currentType = 'home';
             document.getElementById('loadMoreBtn').style.display = 'none';
@@ -229,7 +225,7 @@
             const id = item.bookId;
             if(!id) return '';
             const eps = item.chapterCount ? `<span class="badge">${item.chapterCount} Eps</span>` : '';
-            // GANTI ONCLICK: Langsung startDirectWatching
+            // KLIK LANGSUNG PLAY (Tanpa Detail)
             return `<div class="card" onclick="startDirectWatching('${id}', '${title.replace(/'/g, "\\'")}')">
                         <img src="${img}" loading="lazy" onerror="this.style.display='none'">
                         ${eps}
@@ -237,32 +233,30 @@
                     </div>`;
         }
 
-        // --- NEW PLAYER LOGIC (DIRECT PLAY) ---
+        // --- LOGIC PLAYER UTAMA ---
 
         async function startDirectWatching(bookId, title) {
-            // 1. Tampilkan Player Kosong Dulu
+            // 1. Tampilkan Player
             document.getElementById('fullPlayer').style.display = 'flex';
             document.getElementById('p-title').innerText = title || "Memuat...";
             document.getElementById('videoPlayer').src = ""; 
             document.getElementById('epListScroll').innerHTML = "<div style='color:#666; padding:10px;'>Mengambil link video...</div>";
             
-            currentBookTitle = title;
-
             // 2. Fetch Episodes
             try {
                 const res = await fetch(`/api/episodes?bookId=${bookId}`);
                 currentEpisodes = await res.json();
 
                 if (currentEpisodes.length === 0) {
-                    alert("Maaf, video tidak tersedia.");
+                    alert("Video tidak tersedia (Mungkin server sedang sibuk).");
                     closePlayer();
                     return;
                 }
 
-                // 3. Render List Episode
+                // 3. Render List Episode di Bawah
                 renderEpisodeList();
 
-                // 4. Play Episode Pertama Langsung
+                // 4. Play Episode 1
                 playByIndex(0);
 
             } catch(e) {
@@ -286,15 +280,15 @@
             currentEpIndex = index;
             const ep = currentEpisodes[index];
 
-            // Set Info
+            // Info UI
             document.getElementById('p-current').innerText = ep.index + 1;
             
-            // Play Video
+            // Set Video
             const video = document.getElementById('videoPlayer');
             video.src = ep.videoUrl;
-            video.play();
+            video.play().catch(e => console.log("Auto-play prevented by browser"));
 
-            // Update UI (Highlight Button)
+            // Highlight Episode
             document.querySelectorAll('.ep-chip').forEach(c => c.classList.remove('active'));
             const activeChip = document.getElementById(`ep-chip-${index}`);
             if (activeChip) {
@@ -302,7 +296,7 @@
                 activeChip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             }
 
-            // Update Next/Prev Buttons State
+            // Button State
             document.getElementById('btnPrev').disabled = (index === 0);
             document.getElementById('btnNext').disabled = (index === currentEpisodes.length - 1);
         }
@@ -317,11 +311,10 @@
             document.getElementById('videoPlayer').src = "";
         }
 
-        // --- AUTO NEXT FEATURE ---
+        // --- AUTO NEXT EPISODE ---
         document.getElementById('videoPlayer').addEventListener('ended', function() {
-            // Jika belum episode terakhir, lanjut ke next
             if (currentEpIndex < currentEpisodes.length - 1) {
-                changeEpisode(1);
+                changeEpisode(1); // Lanjut next episode otomatis
             }
         });
 
