@@ -1,6 +1,3 @@
-// ==========================================
-// BACKEND VERCEL - ALBEDO TV (FIXED DETAIL)
-// ==========================================
 const REFERRAL_CODE = "ALBEDO_VIP_2026"; 
 const BASE_URL = "https://dramabox.botraiki.biz/api";
 
@@ -12,19 +9,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Helper Fetch (PENTING: Pakai Header User-Agent agar tidak diblokir)
+// Helper Fetch
 const fetchData = async (endpoint, params = {}) => {
     try {
         const response = await axios.get(`${BASE_URL}${endpoint}`, { 
             params,
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Referer': 'https://dramabox.com/'
-            }
+            timeout: 10000 
         });
         return response.data;
     } catch (error) {
-        console.error(`Error fetching ${endpoint}:`, error.message);
         return null;
     }
 };
@@ -45,18 +38,17 @@ app.get('/api/home', async (req, res) => {
     }
 
     res.json({
-        referral: REFERRAL_CODE,
         sections: [
-            { id: 'trending', title: "Sedang Trending 🔥", type: 'trending', data: trending || [] },
-            { id: 'foryou', title: "Rekomendasi Untukmu ❤️", type: 'for-you', data: forYou || [] },
-            { id: 'vip', title: "Eksklusif VIP 👑", type: 'vip', data: vipList.slice(0, 8) },
-            { id: 'dubbed', title: "Dubbing Indonesia 🇮🇩", type: 'dubbed', data: dubbed || [] },
-            { id: 'latest', title: "Rilis Terbaru 🆕", type: 'latest', data: latest || [] }
+            { title: "Sedang Trending 🔥", type: 'trending', data: trending || [] },
+            { title: "Rekomendasi Untukmu ❤️", type: 'for-you', data: forYou || [] },
+            { title: "Eksklusif VIP 👑", type: 'vip', data: vipList.slice(0, 8) },
+            { title: "Dubbing Indonesia 🇮🇩", type: 'dubbed', data: dubbed || [] },
+            { title: "Rilis Terbaru 🆕", type: 'latest', data: latest || [] }
         ]
     });
 });
 
-// 2. LIST & PAGINATION
+// 2. LIST
 app.get('/api/list', async (req, res) => {
     const { type, page = 1 } = req.query;
     let endpoint = '/latest';
@@ -80,17 +72,22 @@ app.get('/api/list', async (req, res) => {
     res.json(result);
 });
 
-// 3. DETAIL (FIXED)
-app.get('/api/detail', async (req, res) => {
-    const { bookId } = req.query;
-    if (!bookId || bookId === 'undefined') return res.status(400).json({ error: "Invalid ID" });
-    
-    // Langsung return response dari API Dramabox (JSON lengkap)
-    const result = await fetchData('/detail', { bookId });
-    res.json(result);
+// 3. SEARCH
+app.get('/api/search', async (req, res) => {
+    const { query } = req.query;
+    const result = await fetchData('/search', { query });
+    res.json(result || []);
+});
+app.get('/api/search/popular', async (req, res) => {
+    const result = await fetchData('/popular-searches');
+    res.json(result || []);
+});
+app.get('/api/random', async (req, res) => {
+    const result = await fetchData('/random');
+    res.json(result || []);
 });
 
-// 4. EPISODES
+// 4. EPISODES (PENTING BUAT PLAYER)
 app.get('/api/episodes', async (req, res) => {
     const { bookId } = req.query;
     const result = await fetchData('/episodes', { bookId });
@@ -112,21 +109,6 @@ app.get('/api/episodes', async (req, res) => {
         return res.json(formatted);
     }
     res.json([]);
-});
-
-// 5. SEARCH & OTHERS
-app.get('/api/search', async (req, res) => {
-    const { query } = req.query;
-    const result = await fetchData('/search', { query });
-    res.json(result || []);
-});
-app.get('/api/search/popular', async (req, res) => {
-    const result = await fetchData('/popular-searches');
-    res.json(result || []);
-});
-app.get('/api/random', async (req, res) => {
-    const result = await fetchData('/random');
-    res.json(result || []);
 });
 
 module.exports = app;
