@@ -2,67 +2,66 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALBEDOBOX-V2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ALBEDO-TV</title>
     <style>
-        :root { --bg: #0f0f0f; --card: #1f1f1f; --accent: #e50914; --text: #fff; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding-bottom: 80px; }
+        :root { --bg: #000000; --card: #1a1a1a; --accent: #ff0033; --text: #ffffff; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
         
         /* Navbar */
-        .navbar { padding: 15px; background: #000; position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
-        .logo { font-weight: bold; font-size: 1.4rem; color: var(--accent); cursor: pointer; text-transform: uppercase; letter-spacing: 1px;}
-        .nav-btn { background: #222; color: white; border: 1px solid #333; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; margin-left: 5px;}
+        .navbar { padding: 15px; background: rgba(0,0,0,0.9); position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; backdrop-filter: blur(10px); }
+        .logo { font-weight: 800; font-size: 1.4rem; color: var(--accent); cursor: pointer; letter-spacing: 1px;}
+        .nav-btn { background: #222; color: #fff; border: 1px solid #333; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; margin-left: 6px; }
         
-        /* Layout */
-        .container { padding: 15px; max-width: 1100px; margin: 0 auto; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-top: 35px; margin-bottom: 15px; border-left: 4px solid var(--accent); padding-left: 12px; }
+        /* Content */
+        .container { padding: 15px; max-width: 1200px; margin: 0 auto; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; margin-bottom: 15px; border-left: 4px solid var(--accent); padding-left: 12px; }
         .section-title { font-size: 1.1rem; font-weight: 700; }
-        .see-all { color: #888; font-size: 0.85rem; cursor: pointer; }
+        .see-all { color: #888; font-size: 0.8rem; cursor: pointer; }
         
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
-        .card { background: var(--card); border-radius: 6px; overflow: hidden; cursor: pointer; position: relative; transition: transform 0.2s; }
-        .card:active { transform: scale(0.95); }
-        .card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #333; }
-        .card-info { padding: 10px; font-size: 0.9rem; }
-        .card-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;}
-        .badge { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.8); color: #fff; font-size: 0.7rem; padding: 3px 6px; border-radius: 4px; font-weight: bold;}
+        /* Grid Film */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+        .card { background: var(--card); border-radius: 6px; overflow: hidden; cursor: pointer; position: relative; }
+        .card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #222; }
+        .card-info { padding: 8px; }
+        .card-title { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ddd; }
+        .badge { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.8); color: #fff; font-size: 0.65rem; padding: 2px 5px; border-radius: 3px; font-weight: bold;}
 
-        /* Load More & Search */
-        .load-more-container { text-align: center; margin-top: 40px; display: none; }
-        .load-more-btn { padding: 12px 40px; background: var(--card); color: white; border: 1px solid #333; cursor: pointer; border-radius: 30px; font-weight: bold;}
-        
-        #search-overlay { display: none; padding: 15px; background: #1a1a1a; border-bottom: 1px solid #333; }
-        .search-input { width: 95%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 8px; font-size: 1rem; display: block; margin: 0 auto;}
+        /* Search & Tags */
+        #search-overlay { display: none; padding: 15px; background: #111; border-bottom: 1px solid #333; }
+        .search-input { width: 95%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 8px; display: block; margin: 0 auto; outline: none;}
         .popular-tags { margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-        .tag { background: #333; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; border: 1px solid #444; }
+        .tag { background: #222; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; color: #ccc; cursor: pointer; border: 1px solid #333; }
 
-        /* Modal Styles */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; overflow-y: auto;}
-        .modal-content { max-width: 800px; margin: 0 auto; min-height: 100vh; background: #111; display: flex; flex-direction: column; position: relative; }
-        .close-modal { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); border: none; color: white; font-size: 2rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; z-index: 20; display:flex; justify-content:center; align-items:center;}
+        /* Modal (Detail & Player) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; overflow-y: auto; }
+        .modal-content { max-width: 800px; margin: 0 auto; min-height: 100vh; background: #050505; position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); border: none; color: white; font-size: 1.8rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; z-index: 20; display:flex; justify-content:center; align-items:center; }
 
-        /* Detail UI */
-        .detail-cover { width: 100%; height: 300px; object-fit: cover; opacity: 0.5; mask-image: linear-gradient(to bottom, black, transparent); -webkit-mask-image: linear-gradient(to bottom, black, transparent); }
-        .detail-body { padding: 20px; margin-top: -100px; position: relative; z-index: 2; }
-        .poster-row { display: flex; gap: 20px; align-items: flex-end; }
-        .detail-poster { width: 120px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.8); background: #333; }
-        .detail-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 5px; margin-top: 10px; }
-        .detail-tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 15px 0; }
-        .play-big-btn { background: var(--accent); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;}
-        
-        /* Player UI */
+        /* Detail Styling */
+        .detail-cover { width: 100%; height: 35vh; object-fit: cover; opacity: 0.4; mask-image: linear-gradient(to bottom, black, transparent); -webkit-mask-image: linear-gradient(to bottom, black, transparent); }
+        .detail-body { padding: 20px; margin-top: -80px; position: relative; z-index: 2; }
+        .poster-row { display: flex; gap: 15px; align-items: flex-end; }
+        .detail-poster { width: 100px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); border: 1px solid #333; }
+        .detail-title { font-size: 1.3rem; font-weight: bold; margin: 15px 0 5px 0; line-height: 1.2; }
+        .play-btn { background: var(--accent); color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 10px rgba(229, 9, 20, 0.4); }
+
+        /* Player Styling */
         video { width: 100%; max-height: 50vh; background: black; margin-top: 60px; }
-        .player-controls { display: flex; justify-content: space-between; padding: 15px; background: #111; border-bottom: 1px solid #222; }
-        .ctrl-btn { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 48%; }
-        .episode-list { flex: 1; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 10px; align-content: start; }
-        .ep-btn { background: #222; border: 1px solid #333; color: #aaa; padding: 12px 0; cursor: pointer; border-radius: 6px; text-align: center; font-weight: 500; font-size: 0.9rem; }
-        .ep-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .player-controls { display: flex; gap: 10px; padding: 15px; background: #111; }
+        .ctrl-btn { flex: 1; background: #222; color: #fff; border: none; padding: 10px; border-radius: 5px; font-size: 0.9rem; cursor: pointer; }
+        .episode-list { padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 8px; }
+        .ep-btn { background: #1a1a1a; border: 1px solid #333; color: #aaa; padding: 10px 0; cursor: pointer; border-radius: 4px; text-align: center; font-size: 0.85rem; }
+        .ep-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+        
+        .loading { text-align: center; padding: 40px; color: #666; font-size: 0.9rem; }
+        .load-more-btn { display: block; margin: 30px auto; padding: 10px 30px; background: #222; color: #fff; border: 1px solid #333; border-radius: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <div class="logo" onclick="window.location.reload()">ALBEDO-TV</div>
+        <div class="logo" onclick="location.reload()">ALBEDO</div>
         <div>
             <button class="nav-btn" onclick="toggleSearch()">🔍 Cari</button>
             <button class="nav-btn" onclick="fetchRandom()">🎲 Acak</button>
@@ -70,18 +69,16 @@
     </nav>
 
     <div id="search-overlay">
-        <input type="text" class="search-input" id="searchInput" placeholder="Ketik judul drama..." onkeypress="if(event.key==='Enter') doSearch(this.value)">
-        <div style="text-align:center; margin-top:10px; font-size:0.8rem; color:#666;">Pencarian Populer:</div>
+        <input type="text" class="search-input" id="searchInput" placeholder="Judul drama..." onkeypress="if(event.key==='Enter') doSearch(this.value)">
+        <div style="text-align:center; margin-top:10px; font-size:0.7rem; color:#666;">TAG POPULER</div>
         <div class="popular-tags" id="popularTags"></div>
     </div>
 
     <div class="container" id="main-content">
-        <div style="text-align:center; padding:50px; color:#666;">Memuat konten...</div>
+        <div class="loading">Memuat konten...</div>
     </div>
 
-    <div class="load-more-container" id="loadMoreContainer">
-        <button class="load-more-btn" onclick="loadNextPage()">Muat Lebih Banyak</button>
-    </div>
+    <button id="loadMoreBtn" class="load-more-btn" onclick="loadNextPage()" style="display:none;">Muat Lebih Banyak</button>
 
     <div id="detail-modal" class="modal">
         <div class="modal-content">
@@ -91,44 +88,46 @@
                 <div class="poster-row">
                     <img id="d-poster" class="detail-poster" src="">
                     <div>
-                        <div id="d-score" style="color: gold; font-weight:bold;">⭐ -</div>
-                        <div style="color:#aaa; font-size:0.8rem;">Status: <span id="d-status">-</span></div>
+                        <div id="d-score" style="color: gold; font-weight:bold; font-size:1.1rem;">⭐ -</div>
+                        <div style="color:#888; font-size:0.8rem;">Status: <span id="d-status">-</span></div>
                     </div>
                 </div>
                 <div id="d-title" class="detail-title">Loading...</div>
-                <div id="d-tags" class="detail-tags"></div>
-                <p id="d-desc" style="color:#ccc; line-height:1.6; font-size:0.9rem;">...</p>
-                <button class="play-big-btn" onclick="startWatching()">▶ TONTON SEKARANG</button>
+                <div id="d-tags" style="display:flex; gap:5px; flex-wrap:wrap; margin:10px 0;"></div>
+                <div id="d-desc" style="color:#ccc; font-size:0.9rem; line-height:1.5; margin-top:10px;"></div>
+                <button class="play-btn" onclick="startWatching()">▶ TONTON SEKARANG</button>
             </div>
         </div>
     </div>
 
     <div id="player-modal" class="modal" style="z-index: 200;">
-        <div class="modal-content" style="background:black;">
+        <div class="modal-content">
             <button class="close-modal" onclick="closePlayer()">×</button>
             <video id="videoPlayer" controls autoplay playsinline></video>
             <div class="player-controls">
                 <button class="ctrl-btn" id="btnPrevEp" onclick="changeEpisode(-1)">Previous</button>
-                <button class="ctrl-btn" id="btnNextEp" onclick="changeEpisode(1)">Next Episode</button>
+                <button class="ctrl-btn" id="btnNextEp" onclick="changeEpisode(1)">Next</button>
             </div>
-            <div style="padding:10px 15px; color:#888; font-size:0.8rem; border-bottom:1px solid #222;">DAFTAR EPISODE</div>
+            <div style="padding:10px 15px; font-size:0.8rem; color:#888; border-bottom:1px solid #222;">DAFTAR EPISODE</div>
             <div id="episode-container" class="episode-list"></div>
         </div>
     </div>
 
     <script>
+        // --- CONFIG & STATE ---
         let currentType = 'home';
         let currentPage = 1;
         let currentBookId = '';
         let currentEpisodes = [];
         let currentEpIndex = 0;
 
-        // Init
+        // Init App
         loadHome();
 
+        // --- CORE FUNCTIONS ---
         async function loadHome() {
             currentType = 'home';
-            document.getElementById('loadMoreContainer').style.display = 'none';
+            document.getElementById('loadMoreBtn').style.display = 'none';
             document.getElementById('search-overlay').style.display = 'none';
             
             try {
@@ -144,12 +143,14 @@
                                 <div class="see-all" onclick="openCategory('${sec.type}', '${sec.title}')">Lihat Semua ></div>
                             </div>
                             <div class="grid">`;
-                        sec.data.forEach(item => html += createCard(item));
+                        sec.data.slice(0, 6).forEach(item => html += createCard(item));
                         html += `</div>`;
                     }
                 });
                 document.getElementById('main-content').innerHTML = html;
-            } catch (e) { document.getElementById('main-content').innerHTML = "<div style='text-align:center; padding:50px'>Gagal memuat. Coba refresh.</div>"; }
+            } catch (e) {
+                document.getElementById('main-content').innerHTML = "<div class='loading'>Gagal memuat. Periksa koneksi.</div>";
+            }
         }
 
         async function openCategory(type, title) {
@@ -159,7 +160,7 @@
             document.getElementById('main-content').innerHTML = `
                 <div class="section-header"><div class="section-title">${title}</div></div>
                 <div class="grid" id="grid-container"></div>
-                <div style="text-align:center; padding:20px; color:#666;" id="loader">Memuat...</div>`;
+                <div class="loading" id="loader">Memuat...</div>`;
             await loadList();
         }
 
@@ -173,9 +174,9 @@
                     let html = '';
                     data.forEach(item => html += createCard(item));
                     document.getElementById('grid-container').innerHTML += html;
-                    document.getElementById('loadMoreContainer').style.display = 'block';
+                    document.getElementById('loadMoreBtn').style.display = 'block';
                 } else {
-                    document.getElementById('loadMoreContainer').style.display = 'none';
+                    document.getElementById('loadMoreBtn').style.display = 'none';
                 }
             } catch (e) {}
         }
@@ -190,100 +191,118 @@
             const overlay = document.getElementById('search-overlay');
             const isHidden = (overlay.style.display === 'none' || overlay.style.display === '');
             overlay.style.display = isHidden ? 'block' : 'none';
+            
             if (isHidden) {
                 document.getElementById('searchInput').focus();
+                // Load Tags
                 const res = await fetch('/api/search/popular');
                 const tags = await res.json();
                 let html = '';
-                tags.slice(0, 10).forEach(t => html += `<div class="tag" onclick="doSearch('${t.bookName}')">${t.bookName}</div>`);
+                tags.slice(0, 8).forEach(t => html += `<div class="tag" onclick="doSearch('${t.bookName}')">${t.bookName}</div>`);
                 document.getElementById('popularTags').innerHTML = html;
             }
         }
 
         async function doSearch(query) {
             currentType = 'search';
-            document.getElementById('loadMoreContainer').style.display = 'none';
-            document.getElementById('main-content').innerHTML = `<div class="section-header"><div class="section-title">Hasil: "${query}"</div></div><div class="grid" id="search-grid"></div>`;
+            document.getElementById('loadMoreBtn').style.display = 'none';
+            document.getElementById('main-content').innerHTML = `<div class="section-header"><div class="section-title">Hasil: "${query}"</div></div><div class="grid" id="search-grid"></div><div class="loading">Mencari...</div>`;
+            
             const res = await fetch(`/api/search?query=${query}`);
             const data = await res.json();
+            document.querySelector('.loading').style.display = 'none';
+            
             let html = '';
             data.forEach(item => html += createCard(item));
-            document.getElementById('search-grid').innerHTML = html || "<div style='padding:20px'>Tidak ditemukan.</div>";
+            document.getElementById('search-grid').innerHTML = html || "<div class='loading'>Tidak ditemukan.</div>";
         }
 
         async function fetchRandom() {
-             const res = await fetch(`/api/random`);
-             const data = await res.json();
-             if(data.length > 0) openDetail(data[0].bookId);
+            const res = await fetch(`/api/random`);
+            const data = await res.json();
+            if(data.length > 0) openDetail(data[0].bookId);
         }
 
+        // --- CARD GENERATOR (SAFE CHECK) ---
         function createCard(item) {
+            // Cek berbagai kemungkinan nama field dari API yang berbeda-beda
             const title = item.bookName || item.title || "No Title";
-            const img = item.coverWap || item.cover || item.bookCover || "";
+            const img = item.coverWap || item.cover || item.bookCover || ""; 
             const id = item.bookId;
             const eps = item.chapterCount ? `<span class="badge">${item.chapterCount} Eps</span>` : '';
-            return `<div class="card" onclick="openDetail('${id}')">
-                    <img src="${img}" loading="lazy"> ${eps}
+            
+            // Jika ID tidak ada, jangan buat card (mencegah error undefined)
+            if(!id) return '';
+
+            return `
+                <div class="card" onclick="openDetail('${id}')">
+                    <img src="${img}" loading="lazy" onerror="this.style.display='none'">
+                    ${eps}
                     <div class="card-info"><div class="card-title">${title}</div></div>
                 </div>`;
         }
 
-        // --- FIXED DETAIL LOGIC ---
+        // --- DETAIL LOGIC (FIXED) ---
         async function openDetail(bookId) {
-            if(!bookId || bookId === 'undefined') return alert("ID Drama tidak valid.");
+            if(!bookId || bookId === 'undefined') return alert("ID Film Error");
 
             document.getElementById('detail-modal').style.display = 'block';
-            document.getElementById('d-title').innerText = "Sedang mengambil data...";
+            
+            // Reset UI
+            document.getElementById('d-title').innerText = "Memuat...";
             document.getElementById('d-desc').innerText = "";
             document.getElementById('d-tags').innerHTML = "";
-            document.getElementById('d-score').innerText = "⭐ -";
+            document.getElementById('d-score').innerText = "";
             document.getElementById('d-poster').src = "";
             document.getElementById('d-cover-bg').src = "";
 
             try {
                 const res = await fetch(`/api/detail?bookId=${bookId}`);
-                // Safe check: kalau API error
-                if (!res.ok) throw new Error("Gagal");
-                
                 const raw = await res.json();
+                
+                // UNWRAP DATA: Kadang API bungkus di 'data', kadang langsung
                 const info = raw.data || raw; 
 
-                // Jika data kosong/undefined, stop
-                if(!info || (!info.bookName && !info.title)) {
-                    document.getElementById('d-title').innerText = "Detail tidak tersedia.";
-                    currentBookId = bookId; // Tetap simpan ID biar tombol tonton bisa dicoba
+                // Validasi data
+                if(!info || (!info.bookName && !info.introduction)) {
+                    document.getElementById('d-title').innerText = "Info detail tidak tersedia.";
+                    currentBookId = bookId; // Tetap simpan ID biar bisa play
                     return;
                 }
 
                 currentBookId = bookId;
                 
-                // Populate UI dengan Safe Check
-                document.getElementById('d-title').innerText = info.bookName || info.title || "Tanpa Judul";
+                // Isi Data
+                document.getElementById('d-title').innerText = info.bookName || "Tanpa Judul";
                 document.getElementById('d-desc').innerText = info.introduction || "Sinopsis belum tersedia.";
-                document.getElementById('d-score').innerText = `⭐ ${info.score || 'N/A'}`;
-                document.getElementById('d-status').innerText = info.statusName || (info.status === 1 ? 'Completed' : 'Ongoing');
+                document.getElementById('d-score').innerText = `⭐ ${info.score || '-'}`;
+                document.getElementById('d-status').innerText = info.statusName || (info.status === 1 ? 'Tamat' : 'On-Going');
                 
+                // Gambar Cover
                 const img = info.cover || info.coverWap || "";
                 document.getElementById('d-cover-bg').src = img;
                 document.getElementById('d-poster').src = img;
 
+                // Tags
                 let tagsHtml = '';
-                if(info.tags) info.tags.forEach(t => tagsHtml += `<div class="tag">${t}</div>`);
+                if(info.tags && Array.isArray(info.tags)) {
+                    info.tags.forEach(t => tagsHtml += `<div class="tag">${t}</div>`);
+                }
                 document.getElementById('d-tags').innerHTML = tagsHtml;
 
             } catch(e) {
-                console.log(e);
+                console.error(e);
                 document.getElementById('d-title').innerText = "Gagal memuat detail.";
-                currentBookId = bookId; // Fallback agar user tetap bisa klik tombol Play
             }
         }
 
         function closeDetail() { document.getElementById('detail-modal').style.display = 'none'; }
 
+        // --- PLAYER LOGIC ---
         async function startWatching() {
             if(!currentBookId) return;
             document.getElementById('player-modal').style.display = 'flex';
-            document.getElementById('episode-container').innerHTML = '<div style="color:#666; padding:10px;">Loading Episodes...</div>';
+            document.getElementById('episode-container').innerHTML = '<div class="loading">Memuat Episode...</div>';
             
             try {
                 const res = await fetch(`/api/episodes?bookId=${currentBookId}`);
@@ -293,11 +312,11 @@
                 currentEpisodes.forEach((ep, idx) => {
                     html += `<div id="ep-${idx}" class="ep-btn" onclick="playByIndex(${idx})">${ep.index + 1}</div>`;
                 });
-                document.getElementById('episode-container').innerHTML = html || "Tidak ada episode.";
+                document.getElementById('episode-container').innerHTML = html || "<div class='loading'>Video tidak tersedia.</div>";
 
                 if (currentEpisodes.length > 0) playByIndex(0);
             } catch(e) {
-                document.getElementById('episode-container').innerHTML = "Gagal memuat episode.";
+                document.getElementById('episode-container').innerHTML = "Error loading episodes.";
             }
         }
 
@@ -305,15 +324,17 @@
             if (index < 0 || index >= currentEpisodes.length) return;
             currentEpIndex = index;
             const ep = currentEpisodes[index];
+            
             document.getElementById('videoPlayer').src = ep.videoUrl;
             document.getElementById('videoPlayer').play();
-            
+
             document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
             const activeBtn = document.getElementById(`ep-${index}`);
             if (activeBtn) {
                 activeBtn.classList.add('active');
                 activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }
+            
             document.getElementById('btnPrevEp').disabled = (index === 0);
             document.getElementById('btnNextEp').disabled = (index === currentEpisodes.length - 1);
         }
