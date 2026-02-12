@@ -1,5 +1,5 @@
 // ==========================================
-// BACKEND VERCEL - ALBEDO TV (FINAL)
+// BACKEND VERCEL - FIXED HEADERS
 // ==========================================
 const REFERRAL_CODE = "ALBEDO_VIP_2026"; 
 const BASE_URL = "https://dramabox.botraiki.biz/api";
@@ -13,18 +13,26 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- Helper Fetch ---
+// --- Helper Fetch dengan Fake Browser Headers ---
 const fetchData = async (endpoint, params = {}) => {
     try {
-        const response = await axios.get(`${BASE_URL}${endpoint}`, { params });
+        const response = await axios.get(`${BASE_URL}${endpoint}`, { 
+            params,
+            headers: {
+                // Menyamar sebagai browser Chrome agar tidak diblokir API
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'application/json, text/plain, */*',
+                'Referer': 'https://dramabox.com/'
+            }
+        });
         return response.data;
     } catch (error) {
         console.error(`Error fetching ${endpoint}:`, error.message);
-        return []; 
+        return null; // Return null biar bisa dideteksi errornya
     }
 };
 
-// --- 1. HOME DASHBOARD (Parallel Fetching) ---
+// --- 1. HOME DASHBOARD ---
 app.get('/api/home', async (req, res) => {
     const [trending, forYou, dubbed, latest, vip] = await Promise.all([
         fetchData('/trending'),
@@ -34,7 +42,6 @@ app.get('/api/home', async (req, res) => {
         fetchData('/vip')
     ]);
 
-    // Parsing struktur VIP yang unik
     let vipList = [];
     if (vip && vip.columnVoList) {
         vip.columnVoList.forEach(col => { 
@@ -54,7 +61,7 @@ app.get('/api/home', async (req, res) => {
     });
 });
 
-// --- 2. LIST PER KATEGORI (Pagination Support) ---
+// --- 2. LIST PER KATEGORI ---
 app.get('/api/list', async (req, res) => {
     const { type, page = 1 } = req.query;
     let endpoint = '';
@@ -71,7 +78,6 @@ app.get('/api/list', async (req, res) => {
 
     const data = await fetchData(endpoint, params);
     
-    // Normalisasi data VIP agar sama dengan yang lain
     if (type === 'vip') {
         let vipList = [];
         if (data && data.columnVoList) {
@@ -81,16 +87,18 @@ app.get('/api/list', async (req, res) => {
         }
         return res.json(vipList);
     }
-
-    // Pastikan return Array
-    const result = Array.isArray(data) ? data : (data.records || []);
+    const result = (data && Array.isArray(data)) ? data : (data?.records || []);
     res.json(result);
 });
 
-// --- 3. DETAIL & EPISODES ---
+// --- 3. DETAIL & EPISODES (Fixed) ---
 app.get('/api/detail', async (req, res) => {
     const { bookId } = req.query;
+    if(!bookId || bookId === 'undefined') return res.status(400).json({ error: "Invalid Book ID" });
+    
     const result = await fetchData('/detail', { bookId });
+    // Handle jika API mengembalikan null/error
+    if (!result) return res.status(500).json({ error: "Data fetch failed" });
     res.json(result);
 });
 
@@ -102,7 +110,6 @@ app.get('/api/episodes', async (req, res) => {
         const formatted = result.map(ep => {
             let videoUrl = "";
             if (ep.cdnList && ep.cdnList.length > 0) {
-                // Prioritas: Ambil yang Default, jika tidak ada ambil index 0
                 const paths = ep.cdnList[0].videoPathList;
                 const defaultVid = paths.find(p => p.isDefault === 1) || paths[0];
                 videoUrl = defaultVid ? defaultVid.videoPath : "";
@@ -125,12 +132,10 @@ app.get('/api/search', async (req, res) => {
     const result = await fetchData('/search', { query });
     res.json(result || []);
 });
-
 app.get('/api/search/popular', async (req, res) => {
     const result = await fetchData('/popular-searches');
     res.json(result || []);
 });
-
 app.get('/api/random', async (req, res) => {
     const result = await fetchData('/random');
     res.json(result || []);
