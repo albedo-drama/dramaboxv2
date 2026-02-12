@@ -1,3 +1,6 @@
+// ==========================================
+// BACKEND VERCEL - HYBRID HEADERS
+// ==========================================
 const REFERRAL_CODE = "ALBEDO_VIP_2026"; 
 const BASE_URL = "https://dramabox.botraiki.biz/api";
 
@@ -9,15 +12,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Helper Fetch
+// --- Helper Fetch Pintar ---
 const fetchData = async (endpoint, params = {}) => {
     try {
+        // KONFIGURASI HEADER DINAMIS
+        // Detail benci header, tapi Episodes butuh header.
+        const headers = {};
+        if (endpoint !== '/detail') {
+            headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+        }
+
         const response = await axios.get(`${BASE_URL}${endpoint}`, { 
             params,
-            timeout: 10000 
+            headers: headers, // Header dikirim sesuai kondisi
+            timeout: 15000 
         });
         return response.data;
     } catch (error) {
+        console.error(`[ERROR] ${endpoint}:`, error.message);
         return null;
     }
 };
@@ -72,24 +84,11 @@ app.get('/api/list', async (req, res) => {
     res.json(result);
 });
 
-// 3. SEARCH
-app.get('/api/search', async (req, res) => {
-    const { query } = req.query;
-    const result = await fetchData('/search', { query });
-    res.json(result || []);
-});
-app.get('/api/search/popular', async (req, res) => {
-    const result = await fetchData('/popular-searches');
-    res.json(result || []);
-});
-app.get('/api/random', async (req, res) => {
-    const result = await fetchData('/random');
-    res.json(result || []);
-});
-
-// 4. EPISODES (PENTING BUAT PLAYER)
+// 3. EPISODES (PENTING: Ini sekarang pakai Header via logika di atas)
 app.get('/api/episodes', async (req, res) => {
     const { bookId } = req.query;
+    if (!bookId) return res.json([]);
+
     const result = await fetchData('/episodes', { bookId });
     
     if (Array.isArray(result)) {
@@ -109,6 +108,27 @@ app.get('/api/episodes', async (req, res) => {
         return res.json(formatted);
     }
     res.json([]);
+});
+
+// 4. SEARCH & OTHERS
+app.get('/api/search', async (req, res) => {
+    const { query } = req.query;
+    const result = await fetchData('/search', { query });
+    res.json(result || []);
+});
+app.get('/api/search/popular', async (req, res) => {
+    const result = await fetchData('/popular-searches');
+    res.json(result || []);
+});
+app.get('/api/random', async (req, res) => {
+    const result = await fetchData('/random');
+    res.json(result || []);
+});
+// Endpoint detail tetap ada buat jaga-jaga kalau mau dipakai random
+app.get('/api/detail', async (req, res) => {
+    const { bookId } = req.query;
+    const result = await fetchData('/detail', { bookId });
+    res.json(result || {});
 });
 
 module.exports = app;
