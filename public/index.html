@@ -5,61 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ALBEDO-TV</title>
     <style>
-        :root { --bg: #050505; --card: #151515; --accent: #ff0033; --text: #fff; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding-bottom: 50px; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #000; --card: #151515; --accent: #ff0033; --text: #fff; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding-bottom: 0; overflow-x: hidden; }
         
         /* NAVBAR */
-        .navbar { padding: 15px; background: rgba(0,0,0,0.9); position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
-        .logo { font-weight: 900; font-size: 1.4rem; color: var(--accent); cursor: pointer; letter-spacing: 1px;}
-        .nav-btn { background: #222; color: #fff; border: 1px solid #333; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+        .navbar { padding: 12px 15px; background: rgba(0,0,0,0.95); position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        .logo { font-weight: 800; font-size: 1.2rem; color: var(--accent); cursor: pointer; letter-spacing: 1px;}
+        .nav-btn { background: #222; color: #fff; border: 1px solid #333; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
 
         /* HOME LAYOUT */
-        .container { padding: 10px; max-width: 1200px; margin: 0 auto; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 10px; border-left: 4px solid var(--accent); padding-left: 10px; }
-        .section-title { font-size: 1.1rem; font-weight: 700; }
+        .container { padding: 10px; max-width: 1200px; margin: 0 auto; padding-bottom: 40px;}
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 10px; border-left: 3px solid var(--accent); padding-left: 10px; }
+        .section-title { font-size: 1rem; font-weight: 700; }
         .see-all { color: #888; font-size: 0.8rem; cursor: pointer; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
         .card { background: var(--card); border-radius: 6px; overflow: hidden; cursor: pointer; position: relative; }
         .card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #222; }
-        .card-title { font-size: 0.8rem; padding: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ccc; }
-        .badge { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.8); color: #fff; font-size: 0.6rem; padding: 2px 5px; border-radius: 3px; font-weight: bold;}
+        .card-title { font-size: 0.75rem; padding: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ccc; }
+        .badge { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.8); color: #fff; font-size: 0.6rem; padding: 2px 4px; border-radius: 3px; font-weight: bold;}
 
-        /* WATCH ROOM LAYOUT (Halaman Nonton) */
-        #watchRoom { display: none; flex-direction: column; min-height: 100vh; background: #000; }
+        /* --- WATCH ROOM (Halaman Nonton) --- */
+        #watchRoom { display: none; flex-direction: column; height: 100vh; background: #000; position: fixed; top: 0; left: 0; width: 100%; z-index: 100;}
         
-        /* Video Player Area (Sticky Top) */
-        .player-wrapper { position: sticky; top: 0; z-index: 100; background: #000; width: 100%; }
-        video { width: 100%; aspect-ratio: 16/9; background: #000; }
-
-        /* Controls & Info */
-        .room-info { padding: 15px; background: #111; border-bottom: 1px solid #222; }
-        .room-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .room-meta { color: #888; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
+        /* 1. Video Player Area (Sticky Top) */
+        .player-sticky { 
+            flex: 0 0 auto; width: 100%; background: #000; z-index: 101; 
+            border-bottom: 1px solid #222; position: relative;
+        }
+        video { width: 100%; aspect-ratio: 16/9; background: #000; display: block; }
         
-        .room-controls { display: flex; gap: 10px; margin-top: 15px; }
-        .ctrl-btn { flex: 1; background: #222; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .ctrl-btn:active { background: #333; }
-        .ctrl-btn.back-home { background: transparent; border: 1px solid #444; flex: 0 0 50px; }
+        .floating-back {
+            position: absolute; top: 10px; left: 10px; z-index: 102;
+            background: rgba(0,0,0,0.6); color: white; width: 35px; height: 35px;
+            border-radius: 50%; border: none; font-size: 1.2rem; cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+        }
 
-        /* Episode Grid */
-        .episode-section { padding: 15px; flex: 1; }
-        .ep-header { font-weight: bold; margin-bottom: 15px; color: #aaa; font-size: 0.9rem; }
-        .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 10px; }
+        /* 2. Controls & Info */
+        .room-info { padding: 12px; background: #111; border-bottom: 1px solid #222; flex: 0 0 auto;}
+        .room-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white;}
+        .room-controls { display: flex; gap: 10px; }
+        .ctrl-btn { 
+            flex: 1; background: #222; color: #fff; border: 1px solid #333; 
+            padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem;
+            display: flex; justify-content: center; align-items: center; gap: 5px;
+        }
+        .ctrl-btn:active { background: var(--accent); border-color: var(--accent); }
+        .ctrl-btn:disabled { opacity: 0.3; cursor: default; }
+
+        /* 3. Episode Grid Area (Scrollable) */
+        .episode-scroll-area { 
+            flex: 1; overflow-y: auto; padding: 12px; background: #050505; 
+            -webkit-overflow-scrolling: touch; 
+        }
+        .ep-header { font-weight: bold; margin-bottom: 10px; color: #888; font-size: 0.8rem; display: flex; justify-content: space-between; }
+        .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 8px; padding-bottom: 50px;}
         .ep-box { 
             background: #1a1a1a; border: 1px solid #333; color: #888; 
-            padding: 12px 0; text-align: center; border-radius: 6px; 
-            cursor: pointer; font-size: 0.9rem; font-weight: 500;
+            padding: 12px 0; text-align: center; border-radius: 4px; 
+            cursor: pointer; font-size: 0.85rem; font-weight: 500;
         }
         .ep-box.active { background: var(--accent); color: white; border-color: var(--accent); font-weight: bold; }
 
-        /* Search Overlay */
+        /* Utility */
         #search-overlay { display: none; padding: 15px; background: #111; border-bottom: 1px solid #333; }
-        .search-input { width: 100%; box-sizing: border-box; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 8px; outline: none; font-size: 1rem;}
-        .tag { background: #222; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; color: #ccc; cursor: pointer; margin: 3px; display: inline-block; border: 1px solid #333;}
-
-        .loading { text-align: center; padding: 50px; color: #666; }
-        .load-more-btn { display: block; margin: 30px auto; padding: 12px 40px; background: #222; color: #fff; border: 1px solid #333; border-radius: 30px; cursor: pointer; }
+        .search-input { width: 100%; box-sizing: border-box; padding: 10px; background: #000; border: 1px solid #444; color: white; border-radius: 6px; outline: none; font-size: 0.9rem;}
+        .loading { text-align: center; padding: 40px; color: #666; font-size: 0.85rem;}
+        .load-more-btn { display: block; margin: 20px auto; padding: 10px 30px; background: #222; color: #fff; border: 1px solid #333; border-radius: 30px; cursor: pointer; font-size: 0.85rem;}
     </style>
 </head>
 <body>
@@ -78,88 +90,119 @@
             <div style="margin-top:10px; text-align:center;" id="popularTags"></div>
         </div>
 
-        <div class="container" id="main-content"><div class="loading">Memuat...</div></div>
+        <div class="container" id="main-content"><div class="loading">Memuat konten...</div></div>
         <button id="loadMoreBtn" class="load-more-btn" onclick="loadNextPage()" style="display:none;">Muat Lebih Banyak</button>
     </div>
 
     <div id="watchRoom">
-        <div class="player-wrapper">
+        <div class="player-sticky">
+            <button class="floating-back" onclick="backToHome()">✕</button>
             <video id="videoPlayer" controls autoplay playsinline webkit-playsinline></video>
         </div>
         
         <div class="room-info">
             <div class="room-title" id="roomTitle">Memuat Judul...</div>
-            <div class="room-meta">
-                <span>Episode <span id="roomEpNum">-</span></span>
-                <span id="roomTotalEp">Total: -</span>
-            </div>
-            
             <div class="room-controls">
-                <button class="ctrl-btn back-home" onclick="backToHome()">🏠</button>
                 <button class="ctrl-btn" id="btnPrev" onclick="changeEpisode(-1)">⏮ Prev</button>
                 <button class="ctrl-btn" id="btnNext" onclick="changeEpisode(1)">Next ⏭</button>
             </div>
         </div>
 
-        <div class="episode-section">
-            <div class="ep-header">DAFTAR EPISODE</div>
-            <div id="epGrid" class="ep-grid">
-                </div>
+        <div class="episode-scroll-area">
+            <div class="ep-header">
+                <span>DAFTAR EPISODE</span>
+                <span id="epTotal" style="color:var(--accent)">-</span>
+            </div>
+            
+            <div id="epLoading" class="loading" style="display:none">
+                <div style="margin-bottom:10px;">⏳ Mengambil data...</div>
+                <small style="color:#444;">Proses butuh waktu 10-30 detik</small>
+            </div>
+            
+            <div id="epGrid" class="ep-grid"></div>
         </div>
     </div>
 
     <script>
-        // CONFIG
-        let currentType = 'home';
-        let currentPage = 1;
-        
-        // PLAYER STATE
-        let currentEpisodes = [];
-        let currentEpIndex = 0;
+        let currentType = 'home', currentPage = 1, currentEpisodes = [], currentEpIndex = 0;
 
-        // INIT
         loadHome();
 
-        // --- NAVIGATION ---
         function backToHome() {
             document.getElementById('watchRoom').style.display = 'none';
             document.getElementById('homeView').style.display = 'block';
             document.getElementById('videoPlayer').pause();
             document.getElementById('videoPlayer').src = "";
+            window.scrollTo(0, 0); 
         }
 
         async function openWatchRoom(bookId, title) {
-            // Switch View
             document.getElementById('homeView').style.display = 'none';
             document.getElementById('watchRoom').style.display = 'flex';
-            window.scrollTo(0, 0);
-
-            // Reset UI
+            
             document.getElementById('roomTitle').innerText = title;
-            document.getElementById('roomEpNum').innerText = "-";
-            document.getElementById('epGrid').innerHTML = "<div style='color:#666; grid-column:1/-1; text-align:center;'>Mengambil episode...</div>";
+            document.getElementById('epTotal').innerText = "...";
+            document.getElementById('epGrid').innerHTML = "";
+            document.getElementById('epLoading').style.display = 'block';
             document.getElementById('videoPlayer').src = "";
 
             try {
                 // Fetch Episodes
                 const res = await fetch(`/api/episodes?bookId=${bookId}`);
                 currentEpisodes = await res.json();
+                document.getElementById('epLoading').style.display = 'none';
                 
-                if (currentEpisodes.length === 0) {
-                    alert("Maaf, episode tidak tersedia.");
+                if (!currentEpisodes || currentEpisodes.length === 0) {
+                    alert("Gagal memuat episode atau timeout. Coba refresh.");
                     backToHome();
                     return;
                 }
 
-                document.getElementById('roomTotalEp').innerText = `Total: ${currentEpisodes.length}`;
-                renderEpisodes();
-                playByIndex(0); // Auto Play Ep 1
+                document.getElementById('epTotal').innerText = `${currentEpisodes.length} Eps`;
+                
+                let html = '';
+                currentEpisodes.forEach((ep, idx) => {
+                    html += `<div id="ep-box-${idx}" class="ep-box" onclick="playByIndex(${idx})">${ep.index + 1}</div>`;
+                });
+                document.getElementById('epGrid').innerHTML = html;
+
+                playByIndex(0);
 
             } catch (e) {
                 alert("Gagal memuat video.");
                 backToHome();
             }
         }
+
+        function playByIndex(index) {
+            if (index < 0 || index >= currentEpisodes.length) return;
+            currentEpIndex = index;
+            
+            const ep = currentEpisodes[index];
+            const video = document.getElementById('videoPlayer');
+            
+            if (video.getAttribute('data-current') !== ep.videoUrl) {
+                video.src = ep.videoUrl;
+                video.setAttribute('data-current', ep.videoUrl);
+                video.play().catch(() => {});
+            }
+
+            document.querySelectorAll('.ep-box').forEach(b => b.classList.remove('active'));
+            const activeBox = document.getElementById(`ep-box-${index}`);
+            if(activeBox) {
+                activeBox.classList.add('active');
+                activeBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            document.getElementById('btnPrev').disabled = (index === 0);
+            document.getElementById('btnNext').disabled = (index === currentEpisodes.length - 1);
+        }
+
+        function changeEpisode(step) { playByIndex(currentEpIndex + step); }
+
+        document.getElementById('videoPlayer').addEventListener('ended', () => {
+            if (currentEpIndex < currentEpisodes.length - 1) changeEpisode(1);
+        });
 
         // --- CORE FUNCTIONS ---
         async function loadHome() {
@@ -237,52 +280,12 @@
             const id = item.bookId;
             if(!id) return '';
             const eps = item.chapterCount ? `<span class="badge">${item.chapterCount} Eps</span>` : '';
-            // ACTION: OPEN WATCH ROOM
             return `<div class="card" onclick="openWatchRoom('${id}', '${title.replace(/'/g, "\\'")}')">
                         <img src="${img}" loading="lazy" onerror="this.style.display='none'">
                         ${eps}
                         <div class="card-title">${title}</div>
                     </div>`;
         }
-
-        // --- PLAYER LOGIC ---
-        function renderEpisodes() {
-            let html = '';
-            currentEpisodes.forEach((ep, idx) => {
-                html += `<div id="ep-${idx}" class="ep-box" onclick="playByIndex(${idx})">${ep.index + 1}</div>`;
-            });
-            document.getElementById('epGrid').innerHTML = html;
-        }
-
-        function playByIndex(index) {
-            if (index < 0 || index >= currentEpisodes.length) return;
-            currentEpIndex = index;
-            
-            // Set Video
-            const video = document.getElementById('videoPlayer');
-            video.src = currentEpisodes[index].videoUrl;
-            video.play().catch(() => {});
-
-            // Update UI
-            document.getElementById('roomEpNum').innerText = currentEpisodes[index].index + 1;
-            
-            document.querySelectorAll('.ep-box').forEach(b => b.classList.remove('active'));
-            const activeBox = document.getElementById(`ep-${index}`);
-            if(activeBox) activeBox.classList.add('active');
-
-            document.getElementById('btnPrev').disabled = (index === 0);
-            document.getElementById('btnNext').disabled = (index === currentEpisodes.length - 1);
-        }
-
-        function changeEpisode(step) {
-            playByIndex(currentEpIndex + step);
-        }
-
-        // Auto Next
-        document.getElementById('videoPlayer').addEventListener('ended', () => {
-            if (currentEpIndex < currentEpisodes.length - 1) changeEpisode(1);
-        });
-
     </script>
 </body>
 </html>
