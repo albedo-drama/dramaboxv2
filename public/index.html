@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALBEDO-TV STREAM</title>
+    <style>
+        :root { --bg: #0f0f0f; --card: #1f1f1f; --accent: #e50914; --text: #fff; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding-bottom: 80px; }
+        
+        /* Navbar */
+        .navbar { padding: 15px; background: #000; position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
+        .logo { font-weight: bold; font-size: 1.4rem; color: var(--accent); cursor: pointer; text-transform: uppercase; letter-spacing: 1px;}
+        .nav-btn { background: #222; color: white; border: 1px solid #333; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; margin-left: 5px;}
+        .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* Container & Grid */
+        .container { padding: 15px; max-width: 1100px; margin: 0 auto; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-top: 35px; margin-bottom: 15px; border-left: 4px solid var(--accent); padding-left: 12px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; }
+        .see-all { color: #888; font-size: 0.85rem; cursor: pointer; }
+        .see-all:hover { color: var(--accent); }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+        .card { background: var(--card); border-radius: 6px; overflow: hidden; cursor: pointer; position: relative; transition: transform 0.2s; }
+        .card:active { transform: scale(0.95); }
+        .card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+        .card-info { padding: 10px; font-size: 0.9rem; }
+        .card-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;}
+        .badge { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.8); color: #fff; font-size: 0.7rem; padding: 3px 6px; border-radius: 4px; font-weight: bold;}
+
+        /* Load More & Search Overlay */
+        .load-more-container { text-align: center; margin-top: 40px; display: none; }
+        .load-more-btn { padding: 12px 40px; background: var(--card); color: white; border: 1px solid #333; cursor: pointer; border-radius: 30px; font-weight: bold;}
+        
+        #search-overlay { display: none; padding: 15px; background: #1a1a1a; border-bottom: 1px solid #333; }
+        .search-input { width: 95%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 8px; font-size: 1rem; display: block; margin: 0 auto;}
+        .popular-tags { margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+        .tag { background: #333; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; border: 1px solid #444; }
+        .tag:hover { border-color: var(--accent); background: #000; }
+
+        /* MODAL STYLES (Detail & Player) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; overflow-y: auto;}
+        .modal-content { max-width: 800px; margin: 0 auto; min-height: 100vh; background: #111; display: flex; flex-direction: column; position: relative; }
+        .close-modal { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); border: none; color: white; font-size: 2rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; z-index: 20; display:flex; justify-content:center; align-items:center;}
+
+        /* Detail UI */
+        .detail-cover { width: 100%; height: 300px; object-fit: cover; opacity: 0.5; mask-image: linear-gradient(to bottom, black, transparent); -webkit-mask-image: linear-gradient(to bottom, black, transparent); }
+        .detail-body { padding: 20px; margin-top: -100px; position: relative; z-index: 2; }
+        .poster-row { display: flex; gap: 20px; align-items: flex-end; }
+        .detail-poster { width: 120px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
+        .detail-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 5px; margin-top: 10px; }
+        .detail-tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 15px 0; }
+        .play-big-btn { background: var(--accent); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;}
+        
+        /* Player UI */
+        video { width: 100%; max-height: 50vh; background: black; margin-top: 60px; }
+        .player-controls { display: flex; justify-content: space-between; padding: 15px; background: #111; border-bottom: 1px solid #222; }
+        .ctrl-btn { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 48%; }
+        .episode-list { flex: 1; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 10px; align-content: start; }
+        .ep-btn { background: #222; border: 1px solid #333; color: #aaa; padding: 12px 0; cursor: pointer; border-radius: 6px; text-align: center; font-weight: 500; font-size: 0.9rem; }
+        .ep-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo" onclick="window.location.reload()">ALBEDO-TV</div>
+        <div>
+            <button class="nav-btn" onclick="toggleSearch()">🔍 Cari</button>
+            <button class="nav-btn" onclick="fetchRandom()">🎲 Acak</button>
+        </div>
+    </nav>
+
+    <div id="search-overlay">
+        <input type="text" class="search-input" id="searchInput" placeholder="Ketik judul drama..." onkeypress="if(event.key==='Enter') doSearch(this.value)">
+        <div style="text-align:center; margin-top:10px; font-size:0.8rem; color:#666;">Pencarian Populer:</div>
+        <div class="popular-tags" id="popularTags"></div>
+    </div>
+
+    <div class="container" id="main-content">
+        <div style="text-align:center; padding:50px; color:#666;">Memuat konten...</div>
+    </div>
+
+    <div class="load-more-container" id="loadMoreContainer">
+        <button class="load-more-btn" onclick="loadNextPage()">Muat Lebih Banyak</button>
+    </div>
+
+    <div id="detail-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeDetail()">×</button>
+            <img id="d-cover-bg" class="detail-cover" src="">
+            <div class="detail-body">
+                <div class="poster-row">
+                    <img id="d-poster" class="detail-poster" src="">
+                    <div>
+                        <div id="d-score" style="color: gold; font-weight:bold;">⭐ 0.0</div>
+                        <div style="color:#aaa; font-size:0.8rem;">Status: <span id="d-status">-</span></div>
+                    </div>
+                </div>
+                <div id="d-title" class="detail-title">Loading...</div>
+                <div id="d-tags" class="detail-tags"></div>
+                <p id="d-desc" style="color:#ccc; line-height:1.6; font-size:0.9rem;">...</p>
+                <button class="play-big-btn" onclick="startWatching()">▶ TONTON SEKARANG</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="player-modal" class="modal" style="z-index: 200;">
+        <div class="modal-content" style="background:black;">
+            <button class="close-modal" onclick="closePlayer()">×</button>
+            <video id="videoPlayer" controls autoplay playsinline></video>
+            
+            <div class="player-controls">
+                <button class="ctrl-btn" id="btnPrevEp" onclick="changeEpisode(-1)">Previous</button>
+                <button class="ctrl-btn" id="btnNextEp" onclick="changeEpisode(1)">Next Episode</button>
+            </div>
+            
+            <div style="padding:10px 15px; color:#888; font-size:0.8rem; border-bottom:1px solid #222;">DAFTAR EPISODE</div>
+            <div id="episode-container" class="episode-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- GLOBAL STATE ---
+        let currentType = 'home';
+        let currentPage = 1;
+        let currentBookId = '';
+        let currentEpisodes = [];
+        let currentEpIndex = 0;
+
+        // Init
+        loadHome();
+
+        // --- DASHBOARD ---
+        async function loadHome() {
+            currentType = 'home';
+            document.getElementById('loadMoreContainer').style.display = 'none';
+            document.getElementById('search-overlay').style.display = 'none';
+            
+            try {
+                const res = await fetch('/api/home');
+                const data = await res.json();
+                let html = '';
+                
+                data.sections.forEach(sec => {
+                    if (sec.data && sec.data.length > 0) {
+                        html += `
+                            <div class="section-header">
+                                <div class="section-title">${sec.title}</div>
+                                <div class="see-all" onclick="openCategory('${sec.type}', '${sec.title}')">Lihat Semua ></div>
+                            </div>
+                            <div class="grid">`;
+                        sec.data.forEach(item => html += createCard(item));
+                        html += `</div>`;
+                    }
+                });
+                document.getElementById('main-content').innerHTML = html;
+            } catch (e) { console.error(e); }
+        }
+
+        // --- CATEGORY & PAGINATION ---
+        async function openCategory(type, title) {
+            currentType = type;
+            currentPage = 1;
+            document.getElementById('search-overlay').style.display = 'none';
+            document.getElementById('main-content').innerHTML = `
+                <div class="section-header"><div class="section-title">${title}</div></div>
+                <div class="grid" id="grid-container"></div>
+                <div style="text-align:center; padding:20px; color:#666;" id="loader">Memuat...</div>`;
+            await loadList();
+        }
+
+        async function loadList() {
+            try {
+                const res = await fetch(`/api/list?type=${currentType}&page=${currentPage}`);
+                const data = await res.json();
+                document.getElementById('loader').style.display = 'none';
+                
+                if (data.length > 0) {
+                    let html = '';
+                    data.forEach(item => html += createCard(item));
+                    document.getElementById('grid-container').innerHTML += html;
+                    document.getElementById('loadMoreContainer').style.display = 'block';
+                } else {
+                    document.getElementById('loadMoreContainer').style.display = 'none';
+                }
+            } catch (e) {}
+        }
+
+        function loadNextPage() {
+            currentPage++;
+            document.getElementById('loader').style.display = 'block';
+            loadList();
+        }
+
+        // --- SEARCH ---
+        async function toggleSearch() {
+            const overlay = document.getElementById('search-overlay');
+            const isHidden = (overlay.style.display === 'none' || overlay.style.display === '');
+            overlay.style.display = isHidden ? 'block' : 'none';
+            
+            if (isHidden) {
+                document.getElementById('searchInput').focus();
+                // Load Tags Popular
+                const res = await fetch('/api/search/popular');
+                const tags = await res.json();
+                let html = '';
+                tags.slice(0, 10).forEach(t => html += `<div class="tag" onclick="doSearch('${t.bookName}')">${t.bookName}</div>`);
+                document.getElementById('popularTags').innerHTML = html;
+            }
+        }
+
+        async function doSearch(query) {
+            currentType = 'search';
+            document.getElementById('loadMoreContainer').style.display = 'none';
+            document.getElementById('main-content').innerHTML = `<div class="section-header"><div class="section-title">Hasil: "${query}"</div></div><div class="grid" id="search-grid"></div>`;
+            
+            const res = await fetch(`/api/search?query=${query}`);
+            const data = await res.json();
+            let html = '';
+            data.forEach(item => html += createCard(item));
+            document.getElementById('search-grid').innerHTML = html || "<div style='padding:20px'>Tidak ditemukan.</div>";
+        }
+
+        // --- RANDOM ---
+        async function fetchRandom() {
+             const res = await fetch(`/api/random`);
+             const data = await res.json();
+             if(data.length > 0) openDetail(data[0].bookId);
+        }
+
+        // --- CARD COMPONENT ---
+        function createCard(item) {
+            const title = item.bookName || item.title || "No Title";
+            const img = item.coverWap || item.cover || item.bookCover || "";
+            const id = item.bookId;
+            const eps = item.chapterCount ? `<span class="badge">${item.chapterCount} Eps</span>` : '';
+            return `<div class="card" onclick="openDetail('${id}')">
+                    <img src="${img}" loading="lazy"> ${eps}
+                    <div class="card-info"><div class="card-title">${title}</div></div>
+                </div>`;
+        }
+
+        // --- DETAIL MODAL LOGIC ---
+        async function openDetail(bookId) {
+            document.getElementById('detail-modal').style.display = 'block';
+            // Set Loading UI
+            document.getElementById('d-title').innerText = "Memuat Info...";
+            document.getElementById('d-desc').innerText = "";
+            document.getElementById('d-tags').innerHTML = "";
+
+            try {
+                const res = await fetch(`/api/detail?bookId=${bookId}`);
+                const raw = await res.json();
+                const info = raw.data || raw;
+
+                currentBookId = bookId;
+                
+                // Populate Data
+                document.getElementById('d-title').innerText = info.bookName;
+                document.getElementById('d-desc').innerText = info.introduction || "Sinopsis tidak tersedia.";
+                document.getElementById('d-score').innerText = `⭐ ${info.score || 'N/A'}`;
+                document.getElementById('d-status').innerText = info.statusName || (info.status === 1 ? 'Completed' : 'Ongoing');
+                
+                const img = info.cover || info.coverWap;
+                document.getElementById('d-cover-bg').src = img;
+                document.getElementById('d-poster').src = img;
+
+                let tagsHtml = '';
+                if(info.tags) info.tags.forEach(t => tagsHtml += `<div class="tag">${t}</div>`);
+                document.getElementById('d-tags').innerHTML = tagsHtml;
+
+            } catch(e) { console.log(e); }
+        }
+
+        function closeDetail() { document.getElementById('detail-modal').style.display = 'none'; }
+
+        // --- PLAYER LOGIC ---
+        async function startWatching() {
+            document.getElementById('player-modal').style.display = 'flex';
+            document.getElementById('episode-container').innerHTML = '<div style="color:#666; padding:10px;">Loading Episodes...</div>';
+            
+            const res = await fetch(`/api/episodes?bookId=${currentBookId}`);
+            currentEpisodes = await res.json();
+            
+            let html = '';
+            currentEpisodes.forEach((ep, idx) => {
+                html += `<div id="ep-${idx}" class="ep-btn" onclick="playByIndex(${idx})">${ep.index + 1}</div>`;
+            });
+            document.getElementById('episode-container').innerHTML = html;
+
+            if (currentEpisodes.length > 0) playByIndex(0);
+        }
+
+        function playByIndex(index) {
+            if (index < 0 || index >= currentEpisodes.length) return;
+            currentEpIndex = index;
+            const ep = currentEpisodes[index];
+            
+            document.getElementById('videoPlayer').src = ep.videoUrl;
+            document.getElementById('videoPlayer').play();
+
+            // Highlight Active
+            document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`ep-${index}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+
+            // Disable Next/Prev if boundaries
+            document.getElementById('btnPrevEp').disabled = (index === 0);
+            document.getElementById('btnNextEp').disabled = (index === currentEpisodes.length - 1);
+        }
+
+        function changeEpisode(d) { playByIndex(currentEpIndex + d); }
+        
+        function closePlayer() { 
+            document.getElementById('player-modal').style.display = 'none'; 
+            document.getElementById('videoPlayer').pause();
+            document.getElementById('videoPlayer').src = "";
+        }
+    </script>
+</body>
+</html>
