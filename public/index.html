@@ -3,58 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALBEDO-TV</title>
+    <title>ALBEDO-TV PLAYER</title>
     <style>
-        :root { --bg: #000; --card: #1a1a1a; --accent: #ff0033; --text: #fff; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding-bottom: 80px; }
+        :root { --bg: #000; --card: #1a1a1a; --accent: #e50914; --text: #fff; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding-bottom: 50px; -webkit-tap-highlight-color: transparent; }
         
-        /* Navbar */
-        .navbar { padding: 15px; background: rgba(0,0,0,0.9); position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; backdrop-filter: blur(10px); }
+        /* NAVBAR */
+        .navbar { padding: 15px; background: rgba(0,0,0,0.9); position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
         .logo { font-weight: 800; font-size: 1.4rem; color: var(--accent); cursor: pointer; letter-spacing: 1px;}
-        .nav-btn { background: #222; color: #fff; border: 1px solid #333; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; margin-left: 6px; }
-        
-        /* Content */
-        .container { padding: 15px; max-width: 1200px; margin: 0 auto; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; margin-bottom: 15px; border-left: 4px solid var(--accent); padding-left: 12px; }
+        .nav-btn { background: #222; color: #fff; border: 1px solid #333; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
+
+        /* GRID CONTENT */
+        .container { padding: 10px; max-width: 1200px; margin: 0 auto; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; margin-bottom: 15px; border-left: 4px solid var(--accent); padding-left: 10px; }
         .section-title { font-size: 1.1rem; font-weight: 700; }
         .see-all { color: #888; font-size: 0.8rem; cursor: pointer; }
         
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 8px; }
         .card { background: var(--card); border-radius: 6px; overflow: hidden; cursor: pointer; position: relative; }
         .card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #222; }
-        .card-info { padding: 8px; }
-        .card-title { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ddd; }
-        .badge { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.8); color: #fff; font-size: 0.65rem; padding: 2px 5px; border-radius: 3px; font-weight: bold;}
+        .card-title { font-size: 0.8rem; padding: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ddd; }
+        .badge { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.8); color: #fff; font-size: 0.6rem; padding: 2px 5px; border-radius: 3px; font-weight: bold;}
 
-        /* Search Overlay */
+        /* SEARCH */
         #search-overlay { display: none; padding: 15px; background: #111; border-bottom: 1px solid #333; }
-        .search-input { width: 95%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 8px; display: block; margin: 0 auto; outline: none; font-size: 1rem;}
-        .popular-tags { margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-        .tag { background: #222; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; color: #ccc; cursor: pointer; border: 1px solid #333; }
+        .search-input { width: 100%; box-sizing: border-box; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 8px; outline: none; font-size: 1rem;}
+        .tag { background: #222; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; color: #ccc; cursor: pointer; border: 1px solid #333; margin: 3px; display: inline-block;}
 
-        /* Modal Styles */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; overflow-y: auto; }
-        .modal-content { max-width: 800px; margin: 0 auto; min-height: 100vh; background: #050505; position: relative; }
-        .close-modal { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); border: none; color: white; font-size: 1.8rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; z-index: 20; display:flex; justify-content:center; align-items:center; }
+        /* --- FULL SCREEN PLAYER STYLES --- */
+        .fullscreen-player {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            flex-direction: column;
+        }
 
-        /* Detail UI */
-        .detail-cover { width: 100%; height: 35vh; object-fit: cover; opacity: 0.4; mask-image: linear-gradient(to bottom, black, transparent); -webkit-mask-image: linear-gradient(to bottom, black, transparent); }
-        .detail-body { padding: 20px; margin-top: -80px; position: relative; z-index: 2; }
-        .poster-row { display: flex; gap: 15px; align-items: flex-end; }
-        .detail-poster { width: 100px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); border: 1px solid #333; }
-        .detail-title { font-size: 1.3rem; font-weight: bold; margin: 15px 0 5px 0; line-height: 1.2; }
-        .play-btn { background: var(--accent); color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 10px rgba(229, 9, 20, 0.4); }
+        /* Header Player */
+        .player-top {
+            position: absolute; top: 0; left: 0; width: 100%;
+            padding: 15px; box-sizing: border-box;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+            z-index: 10; display: flex; justify-content: space-between; align-items: center;
+        }
+        .player-title { font-weight: bold; font-size: 1rem; text-shadow: 1px 1px 2px black; max-width: 80%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .close-btn { background: none; border: none; color: white; font-size: 2rem; cursor: pointer; line-height: 1; }
 
-        /* Player UI */
-        video { width: 100%; max-height: 50vh; background: black; margin-top: 60px; }
-        .player-controls { display: flex; gap: 10px; padding: 15px; background: #111; }
-        .ctrl-btn { flex: 1; background: #222; color: #fff; border: none; padding: 10px; border-radius: 5px; font-size: 0.9rem; cursor: pointer; }
-        .episode-list { padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 8px; }
-        .ep-btn { background: #1a1a1a; border: 1px solid #333; color: #aaa; padding: 10px 0; cursor: pointer; border-radius: 4px; text-align: center; font-size: 0.85rem; }
-        .ep-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+        /* Video Area */
+        .video-wrapper {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            background: #000; width: 100%;
+        }
+        video { width: 100%; max-height: 100vh; object-fit: contain; }
+
+        /* Controls Area (Bottom) */
+        .player-controls {
+            background: #111; border-top: 1px solid #222;
+            padding: 15px; padding-bottom: 30px;
+        }
         
-        .loading { text-align: center; padding: 40px; color: #666; font-size: 0.9rem; }
-        .load-more-btn { display: block; margin: 30px auto; padding: 10px 30px; background: #222; color: #fff; border: 1px solid #333; border-radius: 20px; cursor: pointer; }
+        /* Info Episode */
+        .ep-info { text-align: center; color: #aaa; font-size: 0.9rem; margin-bottom: 15px; }
+        .ep-highlight { color: var(--accent); font-weight: bold; }
+
+        /* Buttons Next/Prev */
+        .ctrl-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;}
+        .ctrl-btn {
+            background: #333; color: white; border: none;
+            padding: 12px 25px; border-radius: 30px;
+            font-size: 0.9rem; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; gap: 5px;
+            width: 45%; justify-content: center;
+        }
+        .ctrl-btn:active { background: #555; }
+        .ctrl-btn:disabled { opacity: 0.3; cursor: default; }
+
+        /* Episode List (Scrollable) */
+        .ep-list-container {
+            overflow-x: auto; white-space: nowrap; padding-bottom: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .ep-chip {
+            display: inline-block;
+            background: #222; border: 1px solid #333; color: #888;
+            padding: 10px 0; width: 60px; text-align: center;
+            border-radius: 8px; margin-right: 8px; cursor: pointer;
+            font-size: 0.9rem; font-weight: 500;
+        }
+        .ep-chip.active { background: var(--accent); color: white; border-color: var(--accent); transform: scale(1.05); }
+
+        .loading { text-align: center; padding: 50px; color: #666; }
+        .load-more-btn { display: block; margin: 30px auto; padding: 12px 40px; background: #222; color: #fff; border: 1px solid #333; border-radius: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -62,100 +100,81 @@
     <nav class="navbar">
         <div class="logo" onclick="location.reload()">ALBEDO</div>
         <div>
-            <button class="nav-btn" onclick="toggleSearch()">🔍 Cari</button>
-            <button class="nav-btn" onclick="fetchRandom()">🎲 Acak</button>
+            <button class="nav-btn" onclick="toggleSearch()">🔍</button>
+            <button class="nav-btn" onclick="fetchRandom()">🎲</button>
         </div>
     </nav>
 
     <div id="search-overlay">
-        <input type="text" class="search-input" id="searchInput" placeholder="Judul drama..." onkeypress="if(event.key==='Enter') doSearch(this.value)">
-        <div style="text-align:center; margin-top:10px; font-size:0.7rem; color:#666;">TAG POPULER</div>
-        <div class="popular-tags" id="popularTags"></div>
+        <input type="text" class="search-input" id="searchInput" placeholder="Cari judul..." onkeypress="if(event.key==='Enter') doSearch(this.value)">
+        <div style="margin-top:10px; text-align:center;" id="popularTags"></div>
     </div>
 
-    <div class="container" id="main-content">
-        <div class="loading">Memuat konten...</div>
-    </div>
-
+    <div class="container" id="main-content"><div class="loading">Memuat...</div></div>
     <button id="loadMoreBtn" class="load-more-btn" onclick="loadNextPage()" style="display:none;">Muat Lebih Banyak</button>
 
-    <div id="detail-modal" class="modal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeDetail()">×</button>
-            <img id="d-cover-bg" class="detail-cover" src="">
-            <div class="detail-body">
-                <div class="poster-row">
-                    <img id="d-poster" class="detail-poster" src="">
-                    <div>
-                        <div id="d-score" style="color: gold; font-weight:bold; font-size:1.1rem;">⭐ -</div>
-                        <div style="color:#888; font-size:0.8rem;">Status: <span id="d-status">-</span></div>
-                        <div style="color:#888; font-size:0.8rem;">Author: <span id="d-author">-</span></div>
-                    </div>
-                </div>
-                <div id="d-title" class="detail-title">Loading...</div>
-                <div id="d-tags" style="display:flex; gap:5px; flex-wrap:wrap; margin:10px 0;"></div>
-                <div id="d-desc" style="color:#ccc; font-size:0.9rem; line-height:1.5; margin-top:10px;"></div>
-                <button class="play-btn" onclick="startWatching()">▶ TONTON SEKARANG</button>
-            </div>
+    <div id="fullPlayer" class="fullscreen-player">
+        <div class="player-top">
+            <div class="player-title" id="p-title">Judul Drama</div>
+            <button class="close-btn" onclick="closePlayer()">×</button>
         </div>
-    </div>
 
-    <div id="player-modal" class="modal" style="z-index: 200;">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closePlayer()">×</button>
+        <div class="video-wrapper">
             <video id="videoPlayer" controls autoplay playsinline></video>
-            <div class="player-controls">
-                <button class="ctrl-btn" id="btnPrevEp" onclick="changeEpisode(-1)">Previous</button>
-                <button class="ctrl-btn" id="btnNextEp" onclick="changeEpisode(1)">Next</button>
+        </div>
+
+        <div class="player-controls">
+            <div class="ep-info">
+                Episode <span id="p-current" class="ep-highlight">-</span> 
+                dari <span id="p-total">-</span>
             </div>
-            <div style="padding:10px 15px; font-size:0.8rem; color:#888; border-bottom:1px solid #222;">DAFTAR EPISODE</div>
-            <div id="episode-container" class="episode-list"></div>
+
+            <div class="ctrl-row">
+                <button class="ctrl-btn" id="btnPrev" onclick="changeEpisode(-1)">⏮ Prev</button>
+                <button class="ctrl-btn" id="btnNext" onclick="changeEpisode(1)">Next ⏭</button>
+            </div>
+
+            <div style="font-size:0.8rem; color:#666; margin-bottom:8px;">DAFTAR EPISODE:</div>
+            <div class="ep-list-container" id="epListScroll">
+                </div>
         </div>
     </div>
 
     <script>
+        // CONFIG
         let currentType = 'home';
         let currentPage = 1;
-        let currentBookId = '';
+        
+        // PLAYER STATE
         let currentEpisodes = [];
         let currentEpIndex = 0;
+        let currentBookTitle = "";
 
+        // INIT
         loadHome();
 
+        // --- FETCHING DATA ---
         async function loadHome() {
             currentType = 'home';
             document.getElementById('loadMoreBtn').style.display = 'none';
-            document.getElementById('search-overlay').style.display = 'none';
             try {
                 const res = await fetch('/api/home');
                 const data = await res.json();
                 let html = '';
                 data.sections.forEach(sec => {
                     if (sec.data && sec.data.length > 0) {
-                        html += `
-                            <div class="section-header">
-                                <div class="section-title">${sec.title}</div>
-                                <div class="see-all" onclick="openCategory('${sec.type}', '${sec.title}')">Lihat Semua ></div>
-                            </div>
-                            <div class="grid">`;
+                        html += `<div class="section-header"><div class="section-title">${sec.title}</div><div class="see-all" onclick="openCategory('${sec.type}', '${sec.title}')">Lihat ></div></div><div class="grid">`;
                         sec.data.slice(0, 6).forEach(item => html += createCard(item));
                         html += `</div>`;
                     }
                 });
                 document.getElementById('main-content').innerHTML = html;
-            } catch (e) {
-                document.getElementById('main-content').innerHTML = "<div class='loading'>Gagal memuat. Periksa koneksi.</div>";
-            }
+            } catch (e) { document.getElementById('main-content').innerHTML = "<div class='loading'>Gagal memuat.</div>"; }
         }
 
         async function openCategory(type, title) {
-            currentType = type;
-            currentPage = 1;
-            document.getElementById('search-overlay').style.display = 'none';
-            document.getElementById('main-content').innerHTML = `
-                <div class="section-header"><div class="section-title">${title}</div></div>
-                <div class="grid" id="grid-container"></div>
-                <div class="loading" id="loader">Memuat...</div>`;
+            currentType = type; currentPage = 1;
+            document.getElementById('main-content').innerHTML = `<div class="section-header"><div class="section-title">${title}</div></div><div class="grid" id="grid-container"></div><div class="loading" id="loader">Memuat...</div>`;
             await loadList();
         }
 
@@ -169,23 +188,16 @@
                     data.forEach(item => html += createCard(item));
                     document.getElementById('grid-container').innerHTML += html;
                     document.getElementById('loadMoreBtn').style.display = 'block';
-                } else {
-                    document.getElementById('loadMoreBtn').style.display = 'none';
-                }
+                } else document.getElementById('loadMoreBtn').style.display = 'none';
             } catch (e) {}
         }
 
-        function loadNextPage() {
-            currentPage++;
-            document.getElementById('loader').style.display = 'block';
-            loadList();
-        }
+        function loadNextPage() { currentPage++; document.getElementById('loader').style.display = 'block'; loadList(); }
 
         async function toggleSearch() {
             const overlay = document.getElementById('search-overlay');
-            const isHidden = (overlay.style.display === 'none' || overlay.style.display === '');
-            overlay.style.display = isHidden ? 'block' : 'none';
-            if (isHidden) {
+            overlay.style.display = (overlay.style.display === 'block') ? 'none' : 'block';
+            if (overlay.style.display === 'block') {
                 document.getElementById('searchInput').focus();
                 const res = await fetch('/api/search/popular');
                 const tags = await res.json();
@@ -197,11 +209,9 @@
 
         async function doSearch(query) {
             currentType = 'search';
-            document.getElementById('loadMoreBtn').style.display = 'none';
-            document.getElementById('main-content').innerHTML = `<div class="section-header"><div class="section-title">Hasil: "${query}"</div></div><div class="grid" id="search-grid"></div><div class="loading">Mencari...</div>`;
+            document.getElementById('main-content').innerHTML = `<div class="section-header"><div class="section-title">Hasil: "${query}"</div></div><div class="grid" id="search-grid"></div>`;
             const res = await fetch(`/api/search?query=${query}`);
             const data = await res.json();
-            document.querySelector('.loading').style.display = 'none';
             let html = '';
             data.forEach(item => html += createCard(item));
             document.getElementById('search-grid').innerHTML = html || "<div class='loading'>Tidak ditemukan.</div>";
@@ -210,121 +220,111 @@
         async function fetchRandom() {
             const res = await fetch(`/api/random`);
             const data = await res.json();
-            if(data.length > 0) openDetail(data[0].bookId);
+            if(data.length > 0) startDirectWatching(data[0].bookId, data[0].bookName);
         }
 
         function createCard(item) {
             const title = item.bookName || item.title || "No Title";
             const img = item.coverWap || item.cover || item.bookCover || ""; 
             const id = item.bookId;
-            const eps = item.chapterCount ? `<span class="badge">${item.chapterCount} Eps</span>` : '';
             if(!id) return '';
-            return `
-                <div class="card" onclick="openDetail('${id}')">
-                    <img src="${img}" loading="lazy" onerror="this.style.display='none'">
-                    ${eps}
-                    <div class="card-info"><div class="card-title">${title}</div></div>
-                </div>`;
+            const eps = item.chapterCount ? `<span class="badge">${item.chapterCount} Eps</span>` : '';
+            // GANTI ONCLICK: Langsung startDirectWatching
+            return `<div class="card" onclick="startDirectWatching('${id}', '${title.replace(/'/g, "\\'")}')">
+                        <img src="${img}" loading="lazy" onerror="this.style.display='none'">
+                        ${eps}
+                        <div class="card-title">${title}</div>
+                    </div>`;
         }
 
-        // --- FIXED DETAIL LOGIC ---
-        async function openDetail(bookId) {
-            if(!bookId || bookId === 'undefined') return;
+        // --- NEW PLAYER LOGIC (DIRECT PLAY) ---
 
-            document.getElementById('detail-modal').style.display = 'block';
+        async function startDirectWatching(bookId, title) {
+            // 1. Tampilkan Player Kosong Dulu
+            document.getElementById('fullPlayer').style.display = 'flex';
+            document.getElementById('p-title').innerText = title || "Memuat...";
+            document.getElementById('videoPlayer').src = ""; 
+            document.getElementById('epListScroll').innerHTML = "<div style='color:#666; padding:10px;'>Mengambil link video...</div>";
             
-            // 1. Reset UI (Placeholder)
-            document.getElementById('d-title').innerText = "Memuat...";
-            document.getElementById('d-desc').innerText = "";
-            document.getElementById('d-tags').innerHTML = "";
-            document.getElementById('d-score').innerText = "";
-            document.getElementById('d-status').innerText = "";
-            document.getElementById('d-author').innerText = "";
-            document.getElementById('d-poster').src = "";
-            document.getElementById('d-cover-bg').src = "";
+            currentBookTitle = title;
 
+            // 2. Fetch Episodes
             try {
-                const res = await fetch(`/api/detail?bookId=${bookId}`);
-                const raw = await res.json();
-                
-                // 2. UNWRAP DATA (Kunci Perbaikan!)
-                // API mengembalikan: { code: 0, msg: "success", data: { ... } }
-                // Jadi kita harus ambil raw.data
-                const info = raw.data || raw; 
-
-                if(!info) throw new Error("Data kosong");
-
-                currentBookId = bookId;
-                
-                // 3. Mapping Field Sesuai JSON User
-                document.getElementById('d-title').innerText = info.bookName || "Tanpa Judul";
-                document.getElementById('d-desc').innerText = info.introduction || "Sinopsis tidak tersedia.";
-                document.getElementById('d-score').innerText = `⭐ ${info.score || '-'}`;
-                document.getElementById('d-status').innerText = info.statusName || "Unknown";
-                document.getElementById('d-author').innerText = info.author || "-";
-                
-                // Prioritas Cover: cover (HD) -> coverWap -> bookCover
-                const img = info.cover || info.coverWap || info.bookCover || "";
-                document.getElementById('d-cover-bg').src = img;
-                document.getElementById('d-poster').src = img;
-
-                // Tags
-                let tagsHtml = '';
-                if(info.tags && Array.isArray(info.tags)) {
-                    info.tags.forEach(t => tagsHtml += `<div class="tag">${t}</div>`);
-                }
-                document.getElementById('d-tags').innerHTML = tagsHtml;
-
-            } catch(e) {
-                console.error(e);
-                document.getElementById('d-title').innerText = "Gagal memuat detail.";
-            }
-        }
-
-        function closeDetail() { document.getElementById('detail-modal').style.display = 'none'; }
-
-        async function startWatching() {
-            if(!currentBookId) return;
-            document.getElementById('player-modal').style.display = 'flex';
-            document.getElementById('episode-container').innerHTML = '<div class="loading">Memuat Episode...</div>';
-            
-            try {
-                const res = await fetch(`/api/episodes?bookId=${currentBookId}`);
+                const res = await fetch(`/api/episodes?bookId=${bookId}`);
                 currentEpisodes = await res.json();
-                
-                let html = '';
-                currentEpisodes.forEach((ep, idx) => {
-                    html += `<div id="ep-${idx}" class="ep-btn" onclick="playByIndex(${idx})">${ep.index + 1}</div>`;
-                });
-                document.getElementById('episode-container').innerHTML = html || "<div class='loading'>Video tidak tersedia.</div>";
-                if (currentEpisodes.length > 0) playByIndex(0);
+
+                if (currentEpisodes.length === 0) {
+                    alert("Maaf, video tidak tersedia.");
+                    closePlayer();
+                    return;
+                }
+
+                // 3. Render List Episode
+                renderEpisodeList();
+
+                // 4. Play Episode Pertama Langsung
+                playByIndex(0);
+
             } catch(e) {
-                document.getElementById('episode-container').innerHTML = "Error loading episodes.";
+                alert("Gagal memuat episode.");
+                closePlayer();
             }
+        }
+
+        function renderEpisodeList() {
+            let html = '';
+            currentEpisodes.forEach((ep, idx) => {
+                html += `<div id="ep-chip-${idx}" class="ep-chip" onclick="playByIndex(${idx})">${ep.index + 1}</div>`;
+            });
+            document.getElementById('epListScroll').innerHTML = html;
+            document.getElementById('p-total').innerText = currentEpisodes.length;
         }
 
         function playByIndex(index) {
             if (index < 0 || index >= currentEpisodes.length) return;
+            
             currentEpIndex = index;
             const ep = currentEpisodes[index];
-            document.getElementById('videoPlayer').src = ep.videoUrl;
-            document.getElementById('videoPlayer').play();
-            document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
-            const activeBtn = document.getElementById(`ep-${index}`);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-                activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+            // Set Info
+            document.getElementById('p-current').innerText = ep.index + 1;
+            
+            // Play Video
+            const video = document.getElementById('videoPlayer');
+            video.src = ep.videoUrl;
+            video.play();
+
+            // Update UI (Highlight Button)
+            document.querySelectorAll('.ep-chip').forEach(c => c.classList.remove('active'));
+            const activeChip = document.getElementById(`ep-chip-${index}`);
+            if (activeChip) {
+                activeChip.classList.add('active');
+                activeChip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             }
-            document.getElementById('btnPrevEp').disabled = (index === 0);
-            document.getElementById('btnNextEp').disabled = (index === currentEpisodes.length - 1);
+
+            // Update Next/Prev Buttons State
+            document.getElementById('btnPrev').disabled = (index === 0);
+            document.getElementById('btnNext').disabled = (index === currentEpisodes.length - 1);
         }
 
-        function changeEpisode(d) { playByIndex(currentEpIndex + d); }
-        function closePlayer() { 
-            document.getElementById('player-modal').style.display = 'none'; 
+        function changeEpisode(step) {
+            playByIndex(currentEpIndex + step);
+        }
+
+        function closePlayer() {
+            document.getElementById('fullPlayer').style.display = 'none';
             document.getElementById('videoPlayer').pause();
             document.getElementById('videoPlayer').src = "";
         }
+
+        // --- AUTO NEXT FEATURE ---
+        document.getElementById('videoPlayer').addEventListener('ended', function() {
+            // Jika belum episode terakhir, lanjut ke next
+            if (currentEpIndex < currentEpisodes.length - 1) {
+                changeEpisode(1);
+            }
+        });
+
     </script>
 </body>
 </html>
