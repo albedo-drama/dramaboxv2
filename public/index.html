@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="referrer" content="no-referrer">
     <title>ALBEDO-TV</title>
     <style>
         :root { --bg: #000; --card: #151515; --accent: #ff0033; --text: #fff; }
@@ -24,52 +25,34 @@
         .card-title { font-size: 0.75rem; padding: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ccc; }
         .badge { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.8); color: #fff; font-size: 0.6rem; padding: 2px 4px; border-radius: 3px; font-weight: bold;}
 
-        /* --- WATCH ROOM (Halaman Nonton) --- */
+        /* --- WATCH ROOM UI --- */
         #watchRoom { display: none; flex-direction: column; height: 100vh; background: #000; position: fixed; top: 0; left: 0; width: 100%; z-index: 100;}
         
-        /* 1. Video Player Area (Sticky Top) */
-        .player-sticky { 
-            flex: 0 0 auto; width: 100%; background: #000; z-index: 101; 
-            border-bottom: 1px solid #222; position: relative;
-        }
+        /* Video Sticky */
+        .player-sticky { flex: 0 0 auto; width: 100%; background: #000; z-index: 101; border-bottom: 1px solid #222; position: relative; }
         video { width: 100%; aspect-ratio: 16/9; background: #000; display: block; }
         
-        .floating-back {
-            position: absolute; top: 10px; left: 10px; z-index: 102;
-            background: rgba(0,0,0,0.6); color: white; width: 35px; height: 35px;
-            border-radius: 50%; border: none; font-size: 1.2rem; cursor: pointer;
-            display: flex; justify-content: center; align-items: center;
-        }
+        /* Tombol Close */
+        .floating-back { position: absolute; top: 10px; left: 10px; z-index: 102; background: rgba(0,0,0,0.6); color: white; width: 35px; height: 35px; border-radius: 50%; border: none; font-size: 1.2rem; cursor: pointer; display: flex; justify-content: center; align-items: center; }
 
-        /* 2. Controls & Info */
+        /* Controls */
         .room-info { padding: 12px; background: #111; border-bottom: 1px solid #222; flex: 0 0 auto;}
         .room-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white;}
         .room-controls { display: flex; gap: 10px; }
-        .ctrl-btn { 
-            flex: 1; background: #222; color: #fff; border: 1px solid #333; 
-            padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem;
-            display: flex; justify-content: center; align-items: center; gap: 5px;
-        }
+        .ctrl-btn { flex: 1; background: #222; color: #fff; border: 1px solid #333; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem; display: flex; justify-content: center; align-items: center; gap: 5px; }
         .ctrl-btn:active { background: var(--accent); border-color: var(--accent); }
         .ctrl-btn:disabled { opacity: 0.3; cursor: default; }
 
-        /* 3. Episode Grid Area (Scrollable) */
-        .episode-scroll-area { 
-            flex: 1; overflow-y: auto; padding: 12px; background: #050505; 
-            -webkit-overflow-scrolling: touch; 
-        }
+        /* Episode Grid Scrollable */
+        .episode-scroll-area { flex: 1; overflow-y: auto; padding: 12px; background: #050505; -webkit-overflow-scrolling: touch; }
         .ep-header { font-weight: bold; margin-bottom: 10px; color: #888; font-size: 0.8rem; display: flex; justify-content: space-between; }
         .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 8px; padding-bottom: 50px;}
-        .ep-box { 
-            background: #1a1a1a; border: 1px solid #333; color: #888; 
-            padding: 12px 0; text-align: center; border-radius: 4px; 
-            cursor: pointer; font-size: 0.85rem; font-weight: 500;
-        }
+        .ep-box { background: #1a1a1a; border: 1px solid #333; color: #888; padding: 12px 0; text-align: center; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 500; }
         .ep-box.active { background: var(--accent); color: white; border-color: var(--accent); font-weight: bold; }
 
-        /* Utility */
         #search-overlay { display: none; padding: 15px; background: #111; border-bottom: 1px solid #333; }
         .search-input { width: 100%; box-sizing: border-box; padding: 10px; background: #000; border: 1px solid #444; color: white; border-radius: 6px; outline: none; font-size: 0.9rem;}
+        .tag { background: #222; padding: 5px 10px; border-radius: 15px; font-size: 0.7rem; color: #ccc; cursor: pointer; margin: 3px; display: inline-block; border: 1px solid #333;}
         .loading { text-align: center; padding: 40px; color: #666; font-size: 0.85rem;}
         .load-more-btn { display: block; margin: 20px auto; padding: 10px 30px; background: #222; color: #fff; border: 1px solid #333; border-radius: 30px; cursor: pointer; font-size: 0.85rem;}
     </style>
@@ -115,8 +98,8 @@
             </div>
             
             <div id="epLoading" class="loading" style="display:none">
-                <div style="margin-bottom:10px;">⏳ Mengambil data...</div>
-                <small style="color:#444;">Proses butuh waktu 10-30 detik</small>
+                ⏳ Mengambil semua episode...<br>
+                <small style="color:#444">Tunggu maks 30 detik...</small>
             </div>
             
             <div id="epGrid" class="ep-grid"></div>
@@ -153,7 +136,7 @@
                 document.getElementById('epLoading').style.display = 'none';
                 
                 if (!currentEpisodes || currentEpisodes.length === 0) {
-                    alert("Gagal memuat episode atau timeout. Coba refresh.");
+                    alert("Episode tidak tersedia atau Timeout. Silakan coba lagi.");
                     backToHome();
                     return;
                 }
@@ -166,6 +149,7 @@
                 });
                 document.getElementById('epGrid').innerHTML = html;
 
+                // Auto Play Eps 1
                 playByIndex(0);
 
             } catch (e) {
@@ -204,7 +188,6 @@
             if (currentEpIndex < currentEpisodes.length - 1) changeEpisode(1);
         });
 
-        // --- CORE FUNCTIONS ---
         async function loadHome() {
             currentType = 'home';
             document.getElementById('loadMoreBtn').style.display = 'none';
