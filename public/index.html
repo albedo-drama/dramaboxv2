@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ALBEDO-TV</title>
     <style>
-        :root { --bg: #000000; --card: #1a1a1a; --accent: #ff0033; --text: #ffffff; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #000; --card: #1a1a1a; --accent: #ff0033; --text: #fff; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding-bottom: 80px; }
         
         /* Navbar */
         .navbar { padding: 15px; background: rgba(0,0,0,0.9); position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; backdrop-filter: blur(10px); }
@@ -19,7 +19,6 @@
         .section-title { font-size: 1.1rem; font-weight: 700; }
         .see-all { color: #888; font-size: 0.8rem; cursor: pointer; }
         
-        /* Grid Film */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
         .card { background: var(--card); border-radius: 6px; overflow: hidden; cursor: pointer; position: relative; }
         .card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #222; }
@@ -27,18 +26,18 @@
         .card-title { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ddd; }
         .badge { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.8); color: #fff; font-size: 0.65rem; padding: 2px 5px; border-radius: 3px; font-weight: bold;}
 
-        /* Search & Tags */
+        /* Search Overlay */
         #search-overlay { display: none; padding: 15px; background: #111; border-bottom: 1px solid #333; }
-        .search-input { width: 95%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 8px; display: block; margin: 0 auto; outline: none;}
+        .search-input { width: 95%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 8px; display: block; margin: 0 auto; outline: none; font-size: 1rem;}
         .popular-tags { margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
         .tag { background: #222; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; color: #ccc; cursor: pointer; border: 1px solid #333; }
 
-        /* Modal (Detail & Player) */
+        /* Modal Styles */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; overflow-y: auto; }
         .modal-content { max-width: 800px; margin: 0 auto; min-height: 100vh; background: #050505; position: relative; }
         .close-modal { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); border: none; color: white; font-size: 1.8rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; z-index: 20; display:flex; justify-content:center; align-items:center; }
 
-        /* Detail Styling */
+        /* Detail UI */
         .detail-cover { width: 100%; height: 35vh; object-fit: cover; opacity: 0.4; mask-image: linear-gradient(to bottom, black, transparent); -webkit-mask-image: linear-gradient(to bottom, black, transparent); }
         .detail-body { padding: 20px; margin-top: -80px; position: relative; z-index: 2; }
         .poster-row { display: flex; gap: 15px; align-items: flex-end; }
@@ -46,7 +45,7 @@
         .detail-title { font-size: 1.3rem; font-weight: bold; margin: 15px 0 5px 0; line-height: 1.2; }
         .play-btn { background: var(--accent); color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 10px rgba(229, 9, 20, 0.4); }
 
-        /* Player Styling */
+        /* Player UI */
         video { width: 100%; max-height: 50vh; background: black; margin-top: 60px; }
         .player-controls { display: flex; gap: 10px; padding: 15px; background: #111; }
         .ctrl-btn { flex: 1; background: #222; color: #fff; border: none; padding: 10px; border-radius: 5px; font-size: 0.9rem; cursor: pointer; }
@@ -90,6 +89,7 @@
                     <div>
                         <div id="d-score" style="color: gold; font-weight:bold; font-size:1.1rem;">⭐ -</div>
                         <div style="color:#888; font-size:0.8rem;">Status: <span id="d-status">-</span></div>
+                        <div style="color:#888; font-size:0.8rem;">Author: <span id="d-author">-</span></div>
                     </div>
                 </div>
                 <div id="d-title" class="detail-title">Loading...</div>
@@ -114,27 +114,22 @@
     </div>
 
     <script>
-        // --- CONFIG & STATE ---
         let currentType = 'home';
         let currentPage = 1;
         let currentBookId = '';
         let currentEpisodes = [];
         let currentEpIndex = 0;
 
-        // Init App
         loadHome();
 
-        // --- CORE FUNCTIONS ---
         async function loadHome() {
             currentType = 'home';
             document.getElementById('loadMoreBtn').style.display = 'none';
             document.getElementById('search-overlay').style.display = 'none';
-            
             try {
                 const res = await fetch('/api/home');
                 const data = await res.json();
                 let html = '';
-                
                 data.sections.forEach(sec => {
                     if (sec.data && sec.data.length > 0) {
                         html += `
@@ -169,7 +164,6 @@
                 const res = await fetch(`/api/list?type=${currentType}&page=${currentPage}`);
                 const data = await res.json();
                 document.getElementById('loader').style.display = 'none';
-                
                 if (data.length > 0) {
                     let html = '';
                     data.forEach(item => html += createCard(item));
@@ -191,10 +185,8 @@
             const overlay = document.getElementById('search-overlay');
             const isHidden = (overlay.style.display === 'none' || overlay.style.display === '');
             overlay.style.display = isHidden ? 'block' : 'none';
-            
             if (isHidden) {
                 document.getElementById('searchInput').focus();
-                // Load Tags
                 const res = await fetch('/api/search/popular');
                 const tags = await res.json();
                 let html = '';
@@ -207,11 +199,9 @@
             currentType = 'search';
             document.getElementById('loadMoreBtn').style.display = 'none';
             document.getElementById('main-content').innerHTML = `<div class="section-header"><div class="section-title">Hasil: "${query}"</div></div><div class="grid" id="search-grid"></div><div class="loading">Mencari...</div>`;
-            
             const res = await fetch(`/api/search?query=${query}`);
             const data = await res.json();
             document.querySelector('.loading').style.display = 'none';
-            
             let html = '';
             data.forEach(item => html += createCard(item));
             document.getElementById('search-grid').innerHTML = html || "<div class='loading'>Tidak ditemukan.</div>";
@@ -223,17 +213,12 @@
             if(data.length > 0) openDetail(data[0].bookId);
         }
 
-        // --- CARD GENERATOR (SAFE CHECK) ---
         function createCard(item) {
-            // Cek berbagai kemungkinan nama field dari API yang berbeda-beda
             const title = item.bookName || item.title || "No Title";
             const img = item.coverWap || item.cover || item.bookCover || ""; 
             const id = item.bookId;
             const eps = item.chapterCount ? `<span class="badge">${item.chapterCount} Eps</span>` : '';
-            
-            // Jika ID tidak ada, jangan buat card (mencegah error undefined)
             if(!id) return '';
-
             return `
                 <div class="card" onclick="openDetail('${id}')">
                     <img src="${img}" loading="lazy" onerror="this.style.display='none'">
@@ -242,17 +227,19 @@
                 </div>`;
         }
 
-        // --- DETAIL LOGIC (FIXED) ---
+        // --- FIXED DETAIL LOGIC ---
         async function openDetail(bookId) {
-            if(!bookId || bookId === 'undefined') return alert("ID Film Error");
+            if(!bookId || bookId === 'undefined') return;
 
             document.getElementById('detail-modal').style.display = 'block';
             
-            // Reset UI
+            // 1. Reset UI (Placeholder)
             document.getElementById('d-title').innerText = "Memuat...";
             document.getElementById('d-desc').innerText = "";
             document.getElementById('d-tags').innerHTML = "";
             document.getElementById('d-score').innerText = "";
+            document.getElementById('d-status').innerText = "";
+            document.getElementById('d-author').innerText = "";
             document.getElementById('d-poster').src = "";
             document.getElementById('d-cover-bg').src = "";
 
@@ -260,26 +247,24 @@
                 const res = await fetch(`/api/detail?bookId=${bookId}`);
                 const raw = await res.json();
                 
-                // UNWRAP DATA: Kadang API bungkus di 'data', kadang langsung
+                // 2. UNWRAP DATA (Kunci Perbaikan!)
+                // API mengembalikan: { code: 0, msg: "success", data: { ... } }
+                // Jadi kita harus ambil raw.data
                 const info = raw.data || raw; 
 
-                // Validasi data
-                if(!info || (!info.bookName && !info.introduction)) {
-                    document.getElementById('d-title').innerText = "Info detail tidak tersedia.";
-                    currentBookId = bookId; // Tetap simpan ID biar bisa play
-                    return;
-                }
+                if(!info) throw new Error("Data kosong");
 
                 currentBookId = bookId;
                 
-                // Isi Data
+                // 3. Mapping Field Sesuai JSON User
                 document.getElementById('d-title').innerText = info.bookName || "Tanpa Judul";
-                document.getElementById('d-desc').innerText = info.introduction || "Sinopsis belum tersedia.";
+                document.getElementById('d-desc').innerText = info.introduction || "Sinopsis tidak tersedia.";
                 document.getElementById('d-score').innerText = `⭐ ${info.score || '-'}`;
-                document.getElementById('d-status').innerText = info.statusName || (info.status === 1 ? 'Tamat' : 'On-Going');
+                document.getElementById('d-status').innerText = info.statusName || "Unknown";
+                document.getElementById('d-author').innerText = info.author || "-";
                 
-                // Gambar Cover
-                const img = info.cover || info.coverWap || "";
+                // Prioritas Cover: cover (HD) -> coverWap -> bookCover
+                const img = info.cover || info.coverWap || info.bookCover || "";
                 document.getElementById('d-cover-bg').src = img;
                 document.getElementById('d-poster').src = img;
 
@@ -298,7 +283,6 @@
 
         function closeDetail() { document.getElementById('detail-modal').style.display = 'none'; }
 
-        // --- PLAYER LOGIC ---
         async function startWatching() {
             if(!currentBookId) return;
             document.getElementById('player-modal').style.display = 'flex';
@@ -313,7 +297,6 @@
                     html += `<div id="ep-${idx}" class="ep-btn" onclick="playByIndex(${idx})">${ep.index + 1}</div>`;
                 });
                 document.getElementById('episode-container').innerHTML = html || "<div class='loading'>Video tidak tersedia.</div>";
-
                 if (currentEpisodes.length > 0) playByIndex(0);
             } catch(e) {
                 document.getElementById('episode-container').innerHTML = "Error loading episodes.";
@@ -324,23 +307,19 @@
             if (index < 0 || index >= currentEpisodes.length) return;
             currentEpIndex = index;
             const ep = currentEpisodes[index];
-            
             document.getElementById('videoPlayer').src = ep.videoUrl;
             document.getElementById('videoPlayer').play();
-
             document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
             const activeBtn = document.getElementById(`ep-${index}`);
             if (activeBtn) {
                 activeBtn.classList.add('active');
                 activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }
-            
             document.getElementById('btnPrevEp').disabled = (index === 0);
             document.getElementById('btnNextEp').disabled = (index === currentEpisodes.length - 1);
         }
 
         function changeEpisode(d) { playByIndex(currentEpIndex + d); }
-        
         function closePlayer() { 
             document.getElementById('player-modal').style.display = 'none'; 
             document.getElementById('videoPlayer').pause();
